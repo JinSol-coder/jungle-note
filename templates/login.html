@@ -13,11 +13,11 @@
 
   <div class="w-full max-w-sm p-6 bg-white rounded shadow">
     <h2 class="text-2xl font-bold mb-4 text-center">로그인</h2>
-    <form>
-      <input type="text" placeholder="아이디" class="w-full mb-3 p-2 border rounded" />
-      <input type="password" placeholder="비밀번호" class="w-full mb-3 p-2 border rounded" />
-      <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">로그인</button>
-    </form>
+    <form action="/login" method="POST">
+      <input type="text" name="username" placeholder="아이디" class="w-full mb-3 p-2 border rounded" />
+      <input type="password" name="password" placeholder="비밀번호" class="w-full mb-3 p-2 border rounded" />
+    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">로그인</button>
+</form>
     <p class="mt-4 text-center text-sm text-gray-500">계정이 없으신가요? <a href="/register" class="text-blue-500">회원가입</a></p>
   </div>
 
