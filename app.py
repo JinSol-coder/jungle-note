@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity, set_access_cookies,
-    set_refresh_cookies, unset_jwt_cookies, get_jwt_identity, get_csrf_token
+    set_refresh_cookies, unset_jwt_cookies, get_csrf_token
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
@@ -29,10 +29,7 @@ jwt = JWTManager(app)
 client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_note"]
 users = db["users"]
-@app.route('/test-insert')
-def test_insert():
-    users.insert_one({ "username": "testuser", "password": "1234" })
-    return "삽입 성공!"
+
 @app.route('/')
 def root():
    return render_template('login.html')
