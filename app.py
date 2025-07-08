@@ -15,9 +15,9 @@ def register():
 
 @app.route('/main')
 def main():
-   return 'This is main page!'
+   return render_template('main.html')
 
-@app.route('/repeat')
+@app.route('/reminder')
 def repeat():
    return 'This is repeat page!'
 
