@@ -8,56 +8,54 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
-<header class="flex w-full items-center py-4 bg-white shadow-md">
-  <!-- 3단위: 정글 노트 -->
-  <div class="flex-[3] flex justify-center items-center">
-    <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
-  </div>
+    <header class="flex w-full items-center py-4 bg-white shadow-md">
+    <!-- 3단위: 정글 노트 -->
+        <div class="flex-[3] flex justify-center items-center">
+            <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
+        </div>
 
-  <!-- 1.5단위: 메모 -->
-  <div class="flex-[1.5] flex justify-center items-center">
-    <a href="/main" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">메모</a>
-  </div>
+        <!-- 1.5단위: 메모 -->
+        <div class="flex-[1.5] flex justify-center items-center">
+            <a href="/main" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">메모</a>
+        </div>
 
-  <!-- 1.5단위: 복습 일정 -->
-  <div class="flex-[1.5] flex justify-center items-center">
-    <a href="/reminder" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">복습 일정</a>
-  </div>
+        <!-- 1.5단위: 복습 일정 -->
+        <div class="flex-[1.5] flex justify-center items-center">
+            <a href="/reminder" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">복습 일정</a>
+        </div>
 
-  <!-- 1단위: 프로필 -->
-  <div class="flex-1 flex justify-center items-center">
-    <a href="/user">
-      <img src="https://via.placeholder.com/30" alt="프로필" class="rounded-full w-8 h-8" />
+        <!-- 1단위: 프로필 -->
+        <div class="flex-1 flex justify-center items-center">
+            <a href="/user">
+            <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
+            </a>
+        </div>
+    </header>
+
+
+    <main class="w-full px-5 pt-10">
+    <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
+        <!-- 카드들 -->
+        <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
+        <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
+        <p class="text-xs text-gray-600">내용내용뭐시기</p>
+        </div>
+
+        <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
+        <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
+        <p class="text-xs text-gray-600">블라블라브랄브라블라블라</p>
+        </div>
+        <!-- 반복 -->
+    </div>
+    </main>
+
+    <!-- + 버튼 -->
+    <a href="/memo_add"
+    class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white border shadow flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
     </a>
-  </div>
-</header>
-
-
-<main class="w-full px-5 pt-10">
-  <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
-    <!-- 카드들 -->
-    <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
-      <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
-      <p class="text-xs text-gray-600">내용내용뭐시기</p>
-    </div>
-
-    <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
-      <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
-      <p class="text-xs text-gray-600">블라블라브랄브라블라블라</p>
-    </div>
-    <!-- 반복 -->
-  </div>
-</main>
-
-  <!-- + 버튼 -->
-<a href="/memo_add"
-   class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white border shadow flex items-center justify-center">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-  </svg>
-</a>
-
-
 
 </body>
 </html>

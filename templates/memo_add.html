@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>메모 추가</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-10">
+
+    <!-- 페이지 맨 위 제목 -->
+    <div class="w-full text-center mb-6 mt-10">
+        <h1 class="text-4xl font-bold text-gray-800">메모 추가</h1>
+    </div>
+
+  <!-- 제목 -->
+    <div class="w-full max-w-xl px-4">
+        <input type="text" name="title" class="w-full border border-gray-400 px-3 py-2 rounded focus:outline-none" placeholder="제목을 입력하세요"/>
+    </div>
+
+  <!-- 툴바 -->
+    <div class="flex space-x-3 text-gray-700 text-sm py-2">
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('bold')" class="px-2 py-1 hover:bg-gray-200 rounded font-bold">B</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('italic')" class="px-2 py-1 hover:bg-gray-200 rounded italic">I</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('underline')" class="px-2 py-1 hover:bg-gray-200 rounded underline">U</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('strikeThrough')" class="px-2 py-1 hover:bg-gray-200 rounded line-through">S</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('justifyLeft')" class="px-2 py-1 hover:bg-gray-200 rounded">左</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('justifyCenter')" class="px-2 py-1 hover:bg-gray-200 rounded">中</button>
+        <div class="border-l mx-2 h-5"></div>
+        <button onclick="execCmd('justifyRight')" class="px-2 py-1 hover:bg-gray-200 rounded">右</button>
+        <div class="border-l mx-2 h-5"></div>
+    </div>
+
+    <script>
+        function execCmd(command, value = null) {
+            const editor = document.getElementById('editor');
+            editor.focus();
+            document.execCommand(command, false, value);
+        }
+    </script>
+
+<!-- 내용 입력 영역 -->
+<div class="w-full max-w-xl px-4">
+  <div class="relative">
+    <!-- 에디터 영역 -->
+    <div id="editor" contenteditable="true"
+      class="w-full h-60 border border-gray-400 px-3 py-2 rounded focus:outline-none bg-white overflow-y-auto">
+    </div>
+
+    <!-- placeholder -->
+    <div id="placeholder"
+      class="absolute top-[0.5rem] left-[0.75rem] text-gray-400 pointer-events-none select-none">
+      내용을 입력하세요
+    </div>
+  </div>
+</div>
+
+    <script>
+    const editor = document.getElementById('editor');
+    const placeholder = document.getElementById('placeholder');
+
+    function togglePlaceholder() {
+        if (editor.innerText.trim() === '') {
+        placeholder.style.display = 'block';
+        } else {
+        placeholder.style.display = 'none';
+        }
+    }
+
+    editor.addEventListener('input', togglePlaceholder);
+    editor.addEventListener('focus', togglePlaceholder);
+    editor.addEventListener('blur', togglePlaceholder);
+
+    // 초기 상태에서 체크
+    togglePlaceholder();
+    </script>
+
+    <div class="mt-6 flex space-x-4">
+        <button class="bg-orange-500 text-white px-10 py-2 rounded hover:bg-orange-600">저장</button>
+        <a href="/main" class="bg-blue-500 text-white px-10 py-2 rounded hover:bg-blue-600 text-center">뒤로가기</a>
+    </div>
+</body>
+</html>
