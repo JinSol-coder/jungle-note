@@ -21,6 +21,8 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = True  # 테스트용
 SECRET_KEY = os.getenv('SECRET_KEY');
 # app.config('JWT_SECRET_KEY') = 'jungle_note_setret'
 jwt = JWTManager(app)
+from datetime import datetime
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 
@@ -127,7 +129,7 @@ def memo_add():
          'title': title,
          'content': content,
          'created_at': datetime.now(),
-         'repeat_visible': True  # 기본값 True
+         'repeat_visible': True
       })
       return redirect('/main')
    return render_template('memo_add.html')
