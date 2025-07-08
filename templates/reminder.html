@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>복습 알림</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // ✅ 쿠키에서 csrf_access_token 값을 꺼내기 위한 함수
+        function getCookie(name) {
+            const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+            return value ? decodeURIComponent(value.split('=')[1]) : null;
+        }
+
+        // ✅ 전역으로 csrf_token 설정
+        window.csrf_token = getCookie('csrf_access_token');
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+
+    <!-- 헤더 -->
+    <header class="flex w-full items-center py-4 bg-white shadow-md">
+        <div class="flex-[3] flex justify-center items-center">
+            <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
+        </div>
+        <div class="flex-[1.5] flex justify-center items-center">
+            <a href="/main" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">메모</a>
+        </div>
+        <div class="flex-[1.5] flex justify-center items-center">
+            <a href="/reminder" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">복습 일정</a>
+        </div>
+        <div class="flex-1 flex justify-center items-center">
+            <a href="/user">
+                <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
+            </a>
+        </div>
+    </header>
+
+    <!-- 메모 카드 목록 -->
+    <div class="w-full max-w-xl mt-10 px-4">
+        {% if memos|length == 0 %}
+            <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
+        {% else %}
+            {% for memo in memos %}
+                <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative flex justify-between items-start" data-id="{{ memo._id }}">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">{{ memo.title }}</h2>
+                        <p class="text-sm text-gray-600 mt-1">학습한지 일주일이 지났습니다.</p>
+                    </div>
+                    <button class="hide-btn text-red-500 font-bold text-xl" data-id="{{ memo._id }}">×</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- X 버튼 클릭 시 Ajax로 /hide_memo 요청 -->
+    <script>
+        $(document).ready(function () {
+            $('.hide-btn').click(function () {
+                const memoId = $(this).data('id');
+
+                $.ajax({
+                    url: '/hide_memo',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrf_token  // ✅ CSRF 토큰 쿠키에서 가져와서 헤더에 설정
+                    },
+                    data: JSON.stringify({ memo_id: memoId }),
+                    success: function (res) {
+                        alert(res.msg);
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON?.msg || "오류 발생");
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
