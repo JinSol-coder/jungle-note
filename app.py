@@ -1,10 +1,15 @@
-from flask import Flask, render_template, jsonify, redirect, url_for
-from flask_bcrypt import Bcrypt
+from flask import Flask, render_template, request, redirect, url_for
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 app.config('JWT_SECRET_KEY') = 'jungle_note_setret'
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["jungle_note"]
+users = db["users"]
 
 @app.route('/')
 def root():
