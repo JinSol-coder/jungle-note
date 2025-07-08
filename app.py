@@ -29,7 +29,8 @@ app = Flask(__name__)
 # MongoDB 연결
 client = MongoClient('mongodb://localhost:27017/')  # Studio 3T에서 본 연결 정보
 db = client['jungle_note']  # 또는 실제 사용할 DB 이름 (예: 'jungle_note')
-memo_collection = db['memos', 'users']  # 사용할 컬렉션 이름
+memo_collection = db['memos']
+user_collection = db['users']
 
 memos = []
 
@@ -43,7 +44,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = memo_collection.find_one({ 'username': username })
+    user = user_collection.find_one({ 'user_id': username })
     if not user:
         return jsonify({ 'success': False, 'msg': '존재하지 않는 사용자입니다.' }), 401
 
@@ -80,7 +81,7 @@ def register_post():
     user_email = data.get('user_email')
     user_pw = data.get('user_pw')
 
-    if memo_collection.find_one({ 'user_id': user_id }):
+    if user_collection.find_one({ 'user_id': user_id }):
         return jsonify({ 'success': False, 'msg': '이미 존재하는 아이디입니다.' })
 
     hashed_pw = generate_password_hash(user_pw)
