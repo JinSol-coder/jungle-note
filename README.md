@@ -23,6 +23,7 @@
 
 ## 대략 레포지토리 구조
 
+```
 jgnote/
 ├── app.py
 ├── templates/
@@ -33,6 +34,7 @@ jgnote/
 │   ├── memo.html            ← 개별 메모 확인/수정 페이지
 │   ├── user.html            ← 사용자 정보 페이지
 │   └── user_modify.html     ← 사용자 정보 편집 페이지
+```
 
 
 ## 🤝 GitHub 협업 절차 (한눈에 보기)
