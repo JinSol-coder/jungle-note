@@ -28,6 +28,10 @@ def main():
    memos = list(memo_collection.find({}, {'_id': 0}))
    return render_template('main.html', memos=memos)
 
+@app.route('/memo')
+def memo():
+   return render_template('memo.html')
+
 @app.route('/reminder')
 def repeat():
    return 'This is repeat page!'
