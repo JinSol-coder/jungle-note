@@ -6,13 +6,11 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // ✅ 쿠키에서 csrf_access_token 값을 꺼내기 위한 함수
+        // CSRF 토큰 쿠키에서 추출
         function getCookie(name) {
             const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
             return value ? decodeURIComponent(value.split('=')[1]) : null;
         }
-
-        // ✅ 전역으로 csrf_token 설정
         window.csrf_token = getCookie('csrf_access_token');
     </script>
 </head>
@@ -24,10 +22,10 @@
             <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
         </div>
         <div class="flex-[1.5] flex justify-center items-center">
-            <a href="/main" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">메모</a>
+            <a href="/main" class="hover:text-blue-500 hover:border-blue-500">메모</a>
         </div>
         <div class="flex-[1.5] flex justify-center items-center">
-            <a href="/reminder" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">복습 일정</a>
+            <a href="/reminder" class="border-b-2 text-black hover:border-b-2 border-black hover:border-blue-500 hover:text-blue-500 pb-1">복습 일정</a>
         </div>
         <div class="flex-1 flex justify-center items-center">
             <a href="/user">
@@ -36,24 +34,40 @@
         </div>
     </header>
 
-    <!-- 메모 카드 목록 -->
+    <!-- 메모 카드 -->
     <div class="w-full max-w-xl mt-10 px-4">
         {% if memos|length == 0 %}
             <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
         {% else %}
             {% for memo in memos %}
-                <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative flex justify-between items-start" data-id="{{ memo._id }}">
+            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative">
+                <div class="flex justify-between items-start">
                     <div>
-                        <h2 class="text-lg font-bold text-gray-800">{{ memo.title }}</h2>
-                        <p class="text-sm text-gray-600 mt-1">학습한지 일주일이 지났습니다.</p>
+                        <h2 class="text-lg font-bold text-green-700 hover:underline cursor-pointer">
+                            <a href="{{ url_for('review', memo_id=memo._id) }}">
+                                {{ memo.title }}
+                            </a>
+                        </h2>
+                        <!-- 좌: 문구 / 우: 날짜 -->
+                        <div class="flex justify-between items-center text-sm text-gray-600 mt-1">
+                            <span>학습한지 일주일이 지났습니다.</span>
+                            <span class="text-xs text-gray-400 ml-4">
+                                {% if memo.created_at.__class__.__name__ == 'datetime' %}
+                                    {{ memo.created_at.strftime('%Y.%m.%d') }}
+                                {% else %}
+                                    {{ memo.created_at[:10].replace('-', '.') }}
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
                     <button class="hide-btn text-red-500 font-bold text-xl" data-id="{{ memo._id }}">×</button>
                 </div>
+            </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    <!-- X 버튼 클릭 시 Ajax로 /hide_memo 요청 -->
+    <!-- 숨김 처리 요청 -->
     <script>
         $(document).ready(function () {
             $('.hide-btn').click(function () {
@@ -64,7 +78,7 @@
                     method: 'POST',
                     contentType: 'application/json',
                     headers: {
-                        'X-CSRF-TOKEN': window.csrf_token  // ✅ CSRF 토큰 쿠키에서 가져와서 헤더에 설정
+                        'X-CSRF-TOKEN': window.csrf_token
                     },
                     data: JSON.stringify({ memo_id: memoId }),
                     success: function (res) {
