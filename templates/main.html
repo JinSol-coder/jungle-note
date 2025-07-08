@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
-
+    <!--헤더!-->
     <header class="flex w-full items-center py-4 bg-white shadow-md">
     <!-- 3단위: 정글 노트 -->
         <div class="flex-[3] flex justify-center items-center">
@@ -32,10 +32,16 @@
         </div>
     </header>
 
-
     <main class="w-full px-5 pt-10">
     <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
-        <!-- 카드들 -->
+        {% for memo in memos %}
+            <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
+                <h2 class="text-sm font-semibold text-gray-800 mb-2">{{ memo.title }}</h2>
+                <p class="text-xs text-gray-600">{{ memo.content | safe }}</p>
+            </div>
+        {% endfor %}
+
+<!-- 
         <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
         <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
         <p class="text-xs text-gray-600">내용내용뭐시기</p>
@@ -44,8 +50,8 @@
         <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
         <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
         <p class="text-xs text-gray-600">블라블라브랄브라블라블라</p>
-        </div>
-        <!-- 반복 -->
+        </div> -->
+
     </div>
     </main>
 

@@ -1,5 +1,15 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, session
+from pymongo import MongoClient
+from datetime import datetime
+
 app = Flask(__name__)
+
+# MongoDB 연결
+client = MongoClient('mongodb://localhost:27017/')  # Studio 3T에서 본 연결 정보
+db = client['jungle_note']  # 또는 실제 사용할 DB 이름 (예: 'jungle_note')
+memo_collection = db['memos']  # 사용할 컬렉션 이름
+
+memos = []
 
 @app.route('/')
 def root():
@@ -15,14 +25,27 @@ def register():
 
 @app.route('/main')
 def main():
-   return render_template('main.html')
+   memos = list(memo_collection.find({}, {'_id': 0}))
+   return render_template('main.html', memos=memos)
 
 @app.route('/reminder')
 def repeat():
    return 'This is repeat page!'
 
-@app.route('/memo_add')
+@app.route('/memo_add', methods=['GET','POST'])
 def memo_add():
+   if request.method == 'POST':
+      title = request.form['title']
+      content = request.form['content']
+      #user_id = session['user_id']
+      memo_collection.insert_one({
+         #'user_id': user_id,
+         'title': title,
+         'content': content,
+         'created_at': datetime.now(),
+         'repeat_visible': True  # 기본값 True
+      })
+      return redirect('/main')
    return render_template('memo_add.html')
 
 if __name__ == '__main__':
