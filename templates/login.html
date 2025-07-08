@@ -1,25 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>정글 되새김질 노트</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
-  <header class="mb-6">
-    <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>정글 되새김질 노트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
+    </header>
 
-  <div class="w-full max-w-sm p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-bold mb-4 text-center">로그인</h2>
-    <form action="/login" method="POST">
-      <input type="text" name="username" placeholder="아이디" class="w-full mb-3 p-2 border rounded" />
-      <input type="password" name="password" placeholder="비밀번호" class="w-full mb-3 p-2 border rounded" />
-    <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">로그인</button>
-</form>
-    <p class="mt-4 text-center text-sm text-gray-500">계정이 없으신가요? <a href="/register" class="text-blue-500">회원가입</a></p>
-  </div>
+    <div class="w-full max-w-sm p-6 bg-white rounded shadow">
+      <h2 class="text-2xl font-bold mb-4 text-center">로그인</h2>
+      <div>
+        <input
+          type="text"
+          id="username"
+          placeholder="아이디"
+          class="w-full mb-3 p-2 border rounded" />
+        <input
+          type="password"
+          id="password"
+          placeholder="비밀번호"
+          class="w-full mb-3 p-2 border rounded" />
+        <button
+          onclick="login()"
+          class="w-full bg-blue-500 text-white p-2 rounded">
+          로그인
+        </button>
+      </div>
+      <p class="mt-4 text-center text-sm text-gray-500">
+        계정이 없으신가요?
+        <a href="/make" class="text-blue-500">회원가입</a>
+      </p>
+    </div>
+    <script>
+      async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
 
-</body>
+        const res = await fetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+          credentials: "include", // ✅ 쿠키 주고받기 가능하게!
+        });
+        if (!res.ok) {
+          alert("로그인 실패!");
+          return;
+        }
+        alert("로그인 성공!");
+        window.location.href = "/register"; // 로그인 성공 후 이동할 페이지
+      }
+    </script>
+  </body>
 </html>

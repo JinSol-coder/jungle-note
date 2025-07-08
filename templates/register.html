@@ -1,30 +1,85 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>회원가입 - 정글 되새김질 노트</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
-  <header class="mb-6">
-    <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입 - 정글 되새김질 노트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
+    </header>
 
-  <div class="w-full max-w-sm p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
-    <form>
-      <input type="text" placeholder="이름" class="w-full mb-3 p-2 border rounded" />
-      <input type="text" placeholder="아이디" class="w-full mb-3 p-2 border rounded" />
-      <input type="email" placeholder="이메일" class="w-full mb-3 p-2 border rounded" />
-      <input type="password" placeholder="비밀번호" class="w-full mb-3 p-2 border rounded" />
-      <input type="password" placeholder="비밀번호 확인" class="w-full mb-3 p-2 border rounded" />
-      <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">회원가입</button>
-    </form>
-    <p class="mt-4 text-center text-sm text-gray-500">
-      이미 계정이 있으신가요? <a href="/login" class="text-blue-500">로그인</a>
-    </p>
-  </div>
+    <div class="w-full max-w-sm p-6 bg-white rounded shadow">
+      <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
+      <form id="register-form" onsubmit="register(event)">
+        <input
+          type="text"
+          name="name"
+          id="name"
+          placeholder="이름"
+          class="w-full mb-3 p-2 border rounded" />
+        <input
+          type="text"
+          name="username"
+          id="username"
+          placeholder="아이디"
+          class="w-full mb-3 p-2 border rounded" />
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="이메일"
+          class="w-full mb-3 p-2 border rounded" />
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="비밀번호"
+          class="w-full mb-3 p-2 border rounded" />
+        <input
+          type="password"
+          name="confirm"
+          id="confirm"
+          placeholder="비밀번호 확인"
+          class="w-full mb-3 p-2 border rounded" />
+        <button
+          type="submit"
+          class="w-full bg-green-500 text-white p-2 rounded">
+          회원가입
+        </button>
+      </form>
+      <p class="mt-4 text-center text-sm text-gray-500">
+        이미 계정이 있으신가요?
+        <a href="/login" class="text-blue-500">로그인</a>
+      </p>
+    </div>
+    <script>
+      async function register(event) {
+        event.preventDefault();
 
-</body>
+        const name = document.getElementById("name").value;
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirm").value;
+
+        if (password !== confirm) {
+          return alert("비밀번호가 일치하지 않습니다.");
+        }
+
+        const res = await fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, username, email, password }),
+        });
+
+        const result = await res.json();
+        alert(result.msg);
+        if (result.success) window.location.href = "/"; // 로그인 페이지로 이동
+      }
+    </script>
+  </body>
 </html>
