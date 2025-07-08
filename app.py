@@ -33,11 +33,6 @@ def main():
 def repeat():
    return 'This is repeat page!'
 
-@app.route('/memo/<memo_id>')
-def memo_detail(memo_id):
-   memo = memo_collection.find_one({'_id': ObjectId(memo_id)})
-   return render_template('memo.html', memo=memo)
-
 @app.route('/memo_add', methods=['GET','POST'])
 def memo_add():
    if request.method == 'POST':
@@ -49,7 +44,7 @@ def memo_add():
          'title': title,
          'content': content,
          'created_at': datetime.now(),
-         'repeat_visible': True  # 기본값 True
+         'repeat_visible': True
       })
       return redirect('/main')
    return render_template('memo_add.html')
