@@ -35,9 +35,10 @@
     <main class="w-full px-5 pt-10">
     <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
         {% for memo in memos %}
-            <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
+            <div onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`)"
+                    class="cursor-pointer w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition">
                 <h2 class="text-sm font-semibold text-gray-800 mb-2">{{ memo.title }}</h2>
-                <p class="text-xs text-gray-600">{{ memo.content | safe }}</p>
+                <p class="text-xs text-gray-600 line-clamp-6">{{ memo.content | safe }}</p>
             </div>
         {% endfor %}
 
@@ -62,6 +63,33 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
     </a>
+
+    <div id="memoModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-yellow-100 border border-yellow-300 p-8 rounded-lg w-[400px] min-h-[500px] shadow-lg relative flex flex-col justify-between">
+            <div>
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4">제목</h2>
+                <div id="modalContent" class="text-[16px] text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="closeModal()" class="bg-blue-500 text-white px-5 py-2 rounded hover:bg-blue-600">닫기</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        function openModal(title, content) {
+            document.getElementById("modalTitle").innerText = title;
+            document.getElementById("modalContent").innerHTML = content;
+            document.getElementById("memoModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("memoModal").classList.add("hidden");
+        }
+    </script>
+
 
 </body>
 </html>
