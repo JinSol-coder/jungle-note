@@ -35,7 +35,7 @@
     <main class="w-full px-5 pt-10">
     <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
         {% for memo in memos %}
-            <div onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`)"
+            <div onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`, `{{ memo._id }}`)"
                     class="cursor-pointer w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition">
                 <h2 class="text-sm font-semibold text-gray-800 mb-2">{{ memo.title }}</h2>
                 <p class="text-xs text-gray-600 line-clamp-6">{{ memo.content | safe }}</p>
@@ -70,7 +70,8 @@
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4">제목</h2>
                 <div id="modalContent" class="text-[16px] text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
             </div>
-            <div class="mt-6 text-right">
+            <div class="mt-6 text-right space-x-2">
+                <button onclick="deleteMemo()" class="bg-red-500 text-white px-5 py-2 rounded hover:bg-red-600">삭제</button>
                 <button onclick="closeModal()" class="bg-blue-500 text-white px-5 py-2 rounded hover:bg-blue-600">닫기</button>
             </div>
         </div>
@@ -79,15 +80,49 @@
 
 
     <script>
-        function openModal(title, content) {
-            document.getElementById("modalTitle").innerText = title;
-            document.getElementById("modalContent").innerHTML = content;
-            document.getElementById("memoModal").classList.remove("hidden");
-        }
+        let selectedMemoId = null; // 선택된 메모의 ID 저장
 
-        function closeModal() {
-            document.getElementById("memoModal").classList.add("hidden");
-        }
+            function openModal(title, content, id) {
+                selectedMemoId = id;  // 메모 id 저장
+                document.getElementById("modalTitle").innerText = title;
+                document.getElementById("modalContent").innerHTML = content;
+                document.getElementById("memoModal").classList.remove("hidden");
+            }
+
+            function closeModal() {
+                selectedMemoId = null;
+                document.getElementById("memoModal").classList.add("hidden");
+            }
+
+            async function deleteMemo() {
+                if (!selectedMemoId) return;
+
+                if (!confirm("정말 이 메모를 삭제할까요?")) return;
+
+                const csrfToken = getCookie("csrf_access_token");
+
+                const res = await fetch(`/memo/${selectedMemoId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    credentials: "include"
+                });
+
+                if (res.ok) {
+                    alert("삭제 완료!");
+                    window.location.reload();
+                } else {
+                    alert("삭제 실패!");
+                }
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+        
     </script>
 
 

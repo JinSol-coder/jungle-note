@@ -1,55 +1,59 @@
-from flask import Flask, render_template, redirect, url_for, request, session, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from pymongo import MongoClient
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity, set_access_cookies,
     set_refresh_cookies, unset_jwt_cookies, get_csrf_token
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from dotenv import load_dotenv
-import jwt
-
-load_dotenv();
-app = Flask(__name__);
-app.config['JWT_SECRET_KEY'] = os.getenv("SECRET_KEY")
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=1)
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(minutes=2)
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True  # 테스트용
-SECRET_KEY = os.getenv('SECRET_KEY');
-# app.config('JWT_SECRET_KEY') = 'jungle_note_setret'
-jwt = JWTManager(app)
-from datetime import datetime
+import os
 from bson.objectid import ObjectId
 
+# 환경 변수 로딩
+load_dotenv()
 app = Flask(__name__)
 
+# JWT 설정
+app.config['JWT_SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)
+app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+jwt = JWTManager(app)
+
 # MongoDB 연결
-client = MongoClient('mongodb://localhost:27017/')  # Studio 3T에서 본 연결 정보
-db = client['jungle_note']  # 또는 실제 사용할 DB 이름 (예: 'jungle_note')
+client = MongoClient('mongodb://localhost:27017/')
+db = client['jungle_note']
 memo_collection = db['memos']
 user_collection = db['users']
 
-memos = []
-
+# 루트 → 로그인 페이지 리다이렉트
 @app.route('/')
 def root():
-   return redirect(url_for('login'))
+    return redirect(url_for('login'))
 
-@app.route('/login', methods=['POST'])
+# 로그인
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+
     data = request.get_json()
+    print("받은 로그인 데이터 : ", data)
+    if data is None:
+        return jsonify({'success': False, 'msg': '요청 데이터가 없습니다.'}), 400
+
     username = data.get('username')
     password = data.get('password')
 
-    user = user_collection.find_one({ 'user_id': username })
+    user = user_collection.find_one({'user_id': username})
     if not user:
-        return jsonify({ 'success': False, 'msg': '존재하지 않는 사용자입니다.' }), 401
+        return jsonify({'success': False, 'msg': '존재하지 않는 사용자입니다.'}), 401
 
-    if not check_password_hash(user['password'], password):
-        return jsonify({ 'success': False, 'msg': '비밀번호가 틀렸습니다.' }), 401
+    if not check_password_hash(user['user_pw'], password):
+        return jsonify({'success': False, 'msg': '비밀번호가 틀렸습니다.'}), 401
 
     access_token = create_access_token(identity=username)
     refresh_token = create_refresh_token(identity=username)
@@ -57,83 +61,112 @@ def login():
     response = jsonify({
         'success': True,
         'msg': '로그인 성공!',
-        'csrf_token': get_csrf_token(access_token)  # CSRF 보호를 위해 전송
+        'csrf_token': get_csrf_token(access_token)
     })
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
     return response
 
+# 로그아웃
 @app.route('/logout', methods=['POST'])
 def logout():
-    response = jsonify({ "logout": True })
-    unset_jwt_cookies(response)  # 쿠키 제거
+    response = jsonify({"logout": True})
+    unset_jwt_cookies(response)
     return response
 
+# 회원가입 페이지
 @app.route('/make', methods=['GET'])
 def make():
-   return render_template('register.html')
+    return render_template('register.html')
 
+# 회원가입 처리
 @app.route('/register', methods=["POST"])
 def register_post():
     data = request.get_json()
-    user_name = data.get('user_name')
-    user_id = data.get('user_id')
-    user_email = data.get('user_email')
-    user_pw = data.get('user_pw')
+    user_name = data.get('name')        # HTML form과 맞춰서 수정
+    user_id = data.get('username')
+    user_email = data.get('email')
+    user_pw = data.get('password')
 
-    if user_collection.find_one({ 'user_id': user_id }):
-        return jsonify({ 'success': False, 'msg': '이미 존재하는 아이디입니다.' })
+    if user_collection.find_one({'user_id': user_id}):
+        return jsonify({'success': False, 'msg': '이미 존재하는 아이디입니다.'})
 
     hashed_pw = generate_password_hash(user_pw)
 
-    memo_collection.insert_one({
+    user_collection.insert_one({
         'user_name': user_name,
         'user_id': user_id,
         'user_email': user_email,
-        'user_pw': hashed_pw,
+        'user_pw': hashed_pw
     })
 
-    return jsonify({ 'success': True, 'msg': '회원가입 완료!' })
+    return jsonify({'success': True, 'msg': '회원가입 완료!'})
 
+# 메인 페이지
 @app.route('/main')
 @jwt_required()
 def main():
-   user = get_jwt_identity()
-   memos = list(memo_collection.find({}, {'_id': 0}))
-   return render_template('main.html', memos=memos)
+    user = get_jwt_identity()
+    memos = list(memo_collection.find({'user_id': user}))
+    return render_template('main.html', memos=memos)
 
+# 메모 추가
+@app.route('/memo_add', methods=["GET", "POST"])
+@jwt_required()  # 이거 없으면 로그인 없이 접근 가능함
+def memo_add():
+    if request.method == 'GET':
+        return render_template('memo_add.html')  # 메모 작성 폼 페이지 렌더링
+
+    if request.method == 'POST':
+        data = request.get_json()
+        title = data.get('title')
+        content = data.get('content')
+        user_id = get_jwt_identity()
+
+        memo_collection.insert_one({
+            'user_id': user_id,
+            'title': title,
+            'content': content,
+            'created_at': datetime.now(),
+            'repeat_visible': True
+        })
+        return jsonify({'success': True, 'msg': '저장 완료!'})
+
+
+# 리프레시 토큰 → 액세스 토큰 재발급
 @app.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
     user = get_jwt_identity()
     access_token = create_access_token(identity=user)
-    response = jsonify({ 'refresh': True })
+    response = jsonify({'refresh': True})
     set_access_cookies(response, access_token)
     return response
 
+# 메모 보기 페이지
 @app.route('/memo')
+@jwt_required()
 def memo():
-   return render_template('memo.html')
+    return render_template('memo.html')
 
+# 리마인더 (추후 확장용)
 @app.route('/reminder')
 def repeat():
-   return 'This is repeat page!'
+    return 'This is repeat page!'
 
-@app.route('/memo_add', methods=['GET','POST'])
-def memo_add():
-   if request.method == 'POST':
-      title = request.form['title']
-      content = request.form['content']
-      user_id = session['user_id']
-      memo_collection.insert_one({
-         'user_id': user_id,
-         'title': title,
-         'content': content,
-         'created_at': datetime.now(),
-         'repeat_visible': True
-      })
-      return redirect('/main')
-   return render_template('memo_add.html')
+@app.route('/memo/<memo_id>', methods=["DELETE"])
+@jwt_required()
+def delete_memo(memo_id):
+    user_id = get_jwt_identity()
+    result = memo_collection.delete_one({
+        '_id': ObjectId(memo_id),
+        'user_id': user_id
+    })
+    if result.deleted_count == 1:
+        return jsonify({'success': True, 'msg': '삭제 완료!'})
+    else:
+        return jsonify({'success': False, 'msg': '삭제 실패!'}), 400
+
 
 if __name__ == '__main__':
-   app.run('0.0.0.0', port=5000, debug=True)
+    app.run('0.0.0.0', port=5000, debug=True)

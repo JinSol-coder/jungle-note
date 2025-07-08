@@ -12,9 +12,9 @@
         <h1 class="text-4xl font-bold text-gray-800">메모 추가</h1>
     </div>
 
-    <form method="POST" action="/memo_add" class="w-full max-w-xl px-4">
+    <form id="memoForm" onsubmit="return false;" class="w-full max-w-xl px-4">
         <!-- 제목 -->
-        <input type="text" name="title" class="w-full border border-gray-400 px-3 py-2 rounded focus:outline-none mb-4" placeholder="제목을 입력하세요"/>
+        <input type="text" id="title" name="title" class="w-full border border-gray-400 px-3 py-2 rounded focus:outline-none mb-4" placeholder="제목을 입력하세요"/>
 
         <!-- 툴바 -->
         <div class="flex space-x-3 text-gray-700 text-sm py-2">
@@ -48,10 +48,11 @@
         </div>
 
         <!-- 버튼 -->
-        <div class="mt-6 flex space-x-4">
+        <div class="mt-6 flex justify-center space-x-4">
             <button type="submit" class="bg-orange-500 text-white px-10 py-2 rounded hover:bg-orange-600">저장</button>
             <a href="/main" class="bg-blue-500 text-white px-10 py-2 rounded hover:bg-blue-600 text-center">뒤로가기</a>
         </div>
+
     </form>
 
     <!-- 스크립트 -->
@@ -75,9 +76,39 @@
         togglePlaceholder();
 
         // submit 전에 내용값 저장
-        document.querySelector('form').addEventListener('submit', function () {
-            hiddenInput.value = editor.innerHTML;
-        });
+        async function saveMemo() {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("editor").innerHTML;
+
+            const csrfToken = getCookie("csrf_access_token"); // 🍪 쿠키에서 CSRF 꺼내기
+            const res = await fetch("/memo_add", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken  // 🔒 CSRF 포함!
+                },
+                body: JSON.stringify({ title, content }),
+                credentials: "include"  // 🍪 쿠키 포함
+            });
+
+            if (!res.ok) {
+                alert("메모 저장 실패!");
+                return;
+            }
+            alert("저장 완료!");
+            window.location.href = "/main";
+        }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
+            document.getElementById('memoForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // 👈 기본 동작 막기!
+                saveMemo();         // 👈 fetch로 직접 처리
+            });
     </script>
 
 </body>
