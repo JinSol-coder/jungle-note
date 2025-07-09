@@ -44,7 +44,7 @@
     <!-- 검색 기능 -->
     <main class="w-full px-5 pt-5">
     <form method="GET" action="/main" class="mb-4 flex gap-2 justify-center">
-        <input type="text" name="query" placeholder="태그 검색: #[태그명]"
+        <input type="text" name="query" placeholder="제목, 내용, 태그 등 검색"
             class="border rounded px-3 py-1 w-60" value="{{ request.args.get('query', '') }}">
         <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded">검색</button>
     </form>
@@ -54,33 +54,44 @@
             class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
             
             {% for memo in memos %}
-                <div
-                    onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`, `{{ memo._id }}`)"
-                    class="cursor-pointer w-full max-w-[250px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition flex flex-col overflow-hidden">
-                    
-                    <h2 class="text-sm font-semibold text-gray-800 mb-2 line-clamp-1 break-words">
-                        {{ memo.title }}
-                    </h2>
-                    <p class="text-xs text-gray-600 line-clamp-6 break-words">
-                        {{ memo.content | safe }}
-                    </p>
-                        <div class="flex flex-wrap gap-2 mt-auto">
-                            {% for tag in memo.tags %}
-                                <span
-                                    class="text-xs text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                                    #{{ tag }}
-                                </span>
-                            {% endfor %}
+                <div class="relative">
+                    <!-- 포스트잇 스타일 메모 카드 -->
+                    <a href="/memo/{{ memo._id }}" 
+                       class="block w-full max-w-[250px] h-[320px] bg-yellow-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
+                        
+                        <!-- 포스트잇 상단 테이프 효과 -->
+                        <div class="absolute -top-1 left-1/4 w-16 h-6 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
+                        <div class="absolute -top-1 left-1/4 w-16 h-6 bg-white opacity-50 rounded-b-md"></div>
+                        
+                        <!-- 메모 내용 -->
+                        <div class="p-4 pt-8 h-full flex flex-col">
+                            <h2 class="text-sm font-bold text-gray-800 mb-3 line-clamp-2 break-words leading-tight ml-1">
+                                {{ memo.title }}
+                            </h2>
+                            <p class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1">
+                                {{ memo.content | safe }}
+                            </p>
+                            
+                            <!-- 태그 영역 -->
+                            {% if memo.tags %}
+                            <div class="flex flex-wrap gap-1 mt-3 ml-1">
+                                {% for tag in memo.tags %}
+                                    <span class="text-xs text-gray-600 bg-yellow-300 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                        #{{ tag }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
-                    
+                        
+                        <!-- 포스트잇 그림자 효과 -->
+                        <div class="absolute inset-0 bg-yellow-400 opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+                    </a>
                 </div>
             {% endfor %}
             
         </div>
     </main>
-
-
-
 
     <!-- + 버튼 -->
     <a href="/memo_add"
@@ -90,65 +101,8 @@
         </svg>
     </a>
 
-    <div id="memoModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
-        <div class="bg-yellow-100 border border-yellow-300 p-8 rounded-lg w-[400px] min-h-[500px] shadow-lg relative flex flex-col justify-between">
-            <div>
-                <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4 break-words">제목</h2>
-                <div id="modalContent" class="text-[16px] text-gray-700 leading-relaxed whitespace-pre-wrap whitespace-pre-wrap break-words"></div>
-            </div>
-            <div class="mt-6 text-right space-x-2">
-                <button onclick="deleteMemo()" class="bg-red-500 text-white px-5 py-2 rounded hover:bg-red-600">삭제</button>
-                <button onclick="closeModal()" class="bg-blue-500 text-white px-5 py-2 rounded hover:bg-blue-600">닫기</button>
-            </div>
-        </div>
-    </div>
-
-
-
     <script>
-        let selectedMemoId = null; // 선택된 메모의 ID 저장
-
-            function openModal(title, content, id) {
-                selectedMemoId = id;  // 메모 id 저장
-                document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalContent").innerHTML = content;
-                document.getElementById("memoModal").classList.remove("hidden");
-            }
-
-            function closeModal() {
-                selectedMemoId = null;
-                document.getElementById("memoModal").classList.add("hidden");
-            }
-
-            async function deleteMemo() {
-                if (!selectedMemoId) return;
-
-                if (!confirm("정말 이 메모를 삭제할까요?")) return;
-
-                const csrfToken = getCookie("csrf_access_token");
-
-                const res = await fetch(`/memo/${selectedMemoId}`, {
-                    method: "DELETE",
-                    headers: {
-                        "X-CSRF-TOKEN": csrfToken
-                    },
-                    credentials: "include"
-                });
-
-                if (res.ok) {
-                    alert("삭제 완료!");
-                    window.location.reload();
-                } else {
-                    alert("삭제 실패!");
-                }
-            }
-
-            function getCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-            }
-            window.addEventListener("pageshow", function (event) {
+        window.addEventListener("pageshow", function (event) {
             if (
             event.persisted ||
             (window.performance && performance.navigation.type === 2)
@@ -158,7 +112,6 @@
             }
         });
     </script>
-
 
 </body>
 </html>

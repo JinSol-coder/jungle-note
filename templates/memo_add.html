@@ -2,65 +2,73 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메모 추가</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-10">
+<body class="bg-gray-100 min-h-screen p-8">
 
-    <!-- 페이지 맨 위 제목 -->
-    <div class="w-full text-center mb-6 mt-10">
-        <h1 class="text-4xl font-bold text-gray-800">메모 추가</h1>
+    <!-- 포스트잇 스타일 메모 추가 카드 -->
+    <div class="max-w-lg w-full bg-yellow-200 shadow-lg transform rotate-1 relative mx-auto mt-10">
+        <!-- 포스트잇 상단 접착 테이프 효과 -->
+        <div class="absolute -top-1 left-1/4 w-20 h-8 bg-gray-200 opacity-80 rounded-b-lg shadow-md border border-gray-300"></div>
+        <div class="absolute -top-1 left-1/4 w-20 h-8 bg-white opacity-60 rounded-b-lg"></div>
+        
+        <!-- 메모 작성 내용 -->
+        <div class="pt-10 pl-6 pr-8 pb-6">
+            <!-- 제목 -->
+            <h1 class="text-xl font-bold text-gray-800 mb-6 ml-2">새 메모 작성</h1>
+
+            <form id="memoForm" onsubmit="return false;">
+                <!-- 제목 입력 -->
+                <input type="text" id="title" name="title" 
+                       class="w-full border-0 border-b-2 border-gray-400 bg-transparent px-2 py-2 mb-6 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2" 
+                       placeholder="제목을 입력하세요"/>
+
+                <!-- 간단한 툴바 -->
+                <div class="flex space-x-2 mb-4 ml-2">
+                    <button type="button" onclick="execCmd('bold')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold">B</button>
+                    <button type="button" onclick="execCmd('italic')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic">I</button>
+                    <button type="button" onclick="execCmd('underline')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline">U</button>
+                    <button type="button" onclick="execCmd('justifyCenter')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm">중앙</button>
+                </div>
+
+                <!-- 내용 입력 영역 -->
+                <div class="relative mb-6 ml-2">
+                    <div id="editor" contenteditable="true"
+                        class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto">
+                    </div>
+                    <div id="placeholder"
+                        class="absolute top-2 left-2 text-gray-500 pointer-events-none select-none">
+                        내용을 입력하세요...
+                    </div>
+                </div>
+
+                <!-- 태그 입력 -->
+                <input type="text" id="tags" 
+                       class="w-full border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-8 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
+                       placeholder="태그 (쉼표로 구분)" />
+
+                <!-- 버튼 -->
+                <div class="flex justify-between items-center ml-2">
+                    <a href="/main" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                        ← 뒤로가기
+                    </a>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                        저장
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 포스트잇 그림자 효과 -->
+        <div class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     </div>
-
-    <form id="memoForm" onsubmit="return false;" class="w-full max-w-xl px-4">
-        <!-- 제목 -->
-        <input type="text" id="title" name="title" class="w-full border border-gray-400 px-3 py-2 rounded focus:outline-none mb-4" placeholder="제목을 입력하세요"/>
-
-        <!-- 툴바 -->
-        <div class="flex space-x-3 text-gray-700 text-sm py-2">
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('bold')" class="px-2 py-1 hover:bg-gray-200 rounded font-bold">B</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('italic')" class="px-2 py-1 hover:bg-gray-200 rounded italic">I</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('underline')" class="px-2 py-1 hover:bg-gray-200 rounded underline">U</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('strikeThrough')" class="px-2 py-1 hover:bg-gray-200 rounded line-through">S</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('justifyLeft')" class="px-2 py-1 hover:bg-gray-200 rounded">左</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('justifyCenter')" class="px-2 py-1 hover:bg-gray-200 rounded">中</button>
-            <div class="border-l mx-2 h-5"></div>
-            <button type="button" onclick="execCmd('justifyRight')" class="px-2 py-1 hover:bg-gray-200 rounded">右</button>
-            <div class="border-l mx-2 h-5"></div>
-        </div>
-
-        <!-- 내용 입력 영역 -->
-        <div class="relative mb-6">
-            <div id="editor" contenteditable="true"
-                class="w-full h-60 border border-gray-400 px-3 py-2 rounded focus:outline-none bg-white overflow-y-auto">
-            </div>
-            <div id="placeholder"
-                class="absolute top-[0.5rem] left-[0.75rem] text-gray-400 pointer-events-none select-none">
-                내용을 입력하세요
-            </div>
-            <input type="hidden" name="content" id="hiddenContent">
-            <input type="text" id="tags" placeholder="태그를 쉼표로 구분하여 입력 (예: 알고리즘, Python)" class="border px-3 py-2 rounded" />
-        </div>
-
-        <!-- 버튼 -->
-        <div class="mt-6 flex justify-center space-x-4">
-            <button type="submit" class="bg-orange-500 text-white px-10 py-2 rounded hover:bg-orange-600">저장</button>
-            <a href="/main" class="bg-blue-500 text-white px-10 py-2 rounded hover:bg-blue-600 text-center">뒤로가기</a>
-        </div>
-
-    </form>
 
     <!-- 스크립트 -->
     <script>
         const editor = document.getElementById('editor');
         const placeholder = document.getElementById('placeholder');
-        const hiddenInput = document.getElementById('hiddenContent');
 
         function togglePlaceholder() {
             placeholder.style.display = editor.innerText.trim() === '' ? 'block' : 'none';
@@ -82,37 +90,51 @@
             const content = document.getElementById("editor").innerHTML;
             const tagsRaw = document.getElementById('tags').value.trim();
 
-            const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
-
-            const csrfToken = getCookie("csrf_access_token"); // 🍪 쿠키에서 CSRF 꺼내기
-            const res = await fetch("/memo_add", {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken  // 🔒 CSRF 포함!
-                },
-                body: JSON.stringify({ title, content, tags }),
-                credentials: "include"  // 🍪 쿠키 포함
-            });
-
-            if (!res.ok) {
-                alert("메모 저장 실패!");
+            if (!title.trim()) {
+                alert("제목을 입력해주세요!");
                 return;
             }
-            alert("저장 완료!");
-            window.location.href = "/main";
-        }
 
-            function getCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
+            if (!content.trim()) {
+                alert("내용을 입력해주세요!");
+                return;
             }
 
-            document.getElementById('memoForm').addEventListener('submit', function (e) {
-                e.preventDefault(); // 👈 기본 동작 막기!
-                saveMemo();         // 👈 fetch로 직접 처리
-            });
+            const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            const csrfToken = getCookie("csrf_access_token");
+            try {
+                const res = await fetch("/memo_add", {
+                    method: "POST",
+                    headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify({ title, content, tags }),
+                    credentials: "include"
+                });
+
+                if (!res.ok) {
+                    alert("메모 저장 실패!");
+                    return;
+                }
+                alert("저장 완료!");
+                window.location.href = "/main";
+            } catch (error) {
+                alert("오류가 발생했습니다.");
+            }
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        document.getElementById('memoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveMemo();
+        });
     </script>
 
 </body>
