@@ -1,61 +1,61 @@
-# 🌱 정글 되새김질 노트 (JG Note)
+# 🌱 정글 되새김질 메모 (JG Note)
 
 ## 📌 프로젝트 소개
 
-**정글 부트캠프에서 배운 내용을 체계적으로 관리하고 복습할 수 있는**  
-**개인 메모 웹 애플리케이션**입니다.
+정글 부트캠프에서 배운 내용을 체계적으로 관리하고 복습할 수 있는 개인 메모 웹 애플리케이션입니다.
 
-- 🗂️ **메모 작성 & 관리**: 학습 내용을 제목, 내용, 태그로 체계적으로 정리
-- 🔍 **스마트 검색**: 제목, 내용, 태그 기반 통합 검색 기능
-- 🔔 **복습 알림**: 작성한 메모를 일정 시간 후 다시 복습하도록 알림
-- 📱 **포스트잇 UI**: 직관적이고 친근한 포스트잇 스타일 인터페이스
-- 👤 **개인 계정**: JWT 기반 안전한 사용자 인증 및 프로필 관리
-
----
-
-## 💡 주요 기능
-
-### 🔐 사용자 인증
-- 회원가입/로그인 시스템
-- JWT 토큰 기반 보안 인증
-- 프로필 정보 수정 가능
-
-### 📝 메모 관리
-- **메모 작성**: 제목, 내용, 태그를 포함한 풍부한 메모 작성
-- **메모 검색**: 제목/내용/태그 통합 검색 및 태그별 필터링
-- **메모 삭제**: 불필요한 메모 제거
-- **포스트잇 스타일**: 시각적으로 매력적인 노란색 포스트잇 디자인
-
-### 🔔 복습 알림 시스템
-- 작성한 메모가 복습 시기가 되면 알림 페이지에 표시
-- 복습 완료 후 알림 숨김 처리 가능
-- 헤더에 복습할 메모 개수 실시간 표시
-
-### �� 사용자 경험
-- **반응형 디자인**: 모바일/데스크톱 모두 지원
-- **직관적 네비게이션**: 메모/복습알림/프로필 간 쉬운 이동
-- **실시간 피드백**: 작업 결과를 즉시 확인 가능
+### 주요 기능
+- 📝 **메모 작성 & 관리**: 포스트잇 스타일로 학습 내용 정리
+- 🔍 **검색 & 태그**: 제목, 내용, 태그 기반 검색
+- 🔔 **복습 알림**: 일정 시간 후 복습 알림 제공
+- 👥 **라운지**: 다른 사용자와 메모 공유 및 댓글
+- 🔐 **사용자 인증**: JWT 기반 안전한 로그인
 
 ---
 
 ## 🛠️ 기술 스택
 
-### Backend
-- **Flask**: Python 웹 프레임워크
-- **MongoDB**: NoSQL 데이터베이스
-- **PyMongo**: MongoDB Python 드라이버
-- **Flask-JWT-Extended**: JWT 토큰 인증
-- **Werkzeug**: 비밀번호 해싱
+**Backend**: Flask, MongoDB, JWT  
+**Frontend**: HTML/CSS/JS, Tailwind CSS  
+**기타**: Python, PyMongo, Werkzeug
 
-### Frontend
-- **HTML5/CSS3**: 마크업 및 스타일링
-- **JavaScript/jQuery**: 동적 기능 구현
-- **Tailwind CSS**: 유틸리티 기반 CSS 프레임워크
+---
 
-### 보안
-- **CSRF 보호**: JWT 기반 CSRF 토큰
-- **비밀번호 해싱**: Werkzeug를 통한 안전한 비밀번호 저장
-- **환경 변수**: dotenv를 통한 비밀키 관리
+## 🚀 설치 및 실행
+
+### 1. 환경 설정
+```bash
+git clone <repository-url>
+cd jgnote
+python -m venv myenv
+source myenv/bin/activate  # Windows: myenv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. MongoDB 설정
+- MongoDB 설치 및 실행 (localhost:27017)
+
+### 3. 환경 변수 설정
+`.env` 파일 생성:
+```
+SECRET_KEY=your-secret-key-here
+```
+
+### 4. 실행
+```bash
+python app.py
+```
+→ http://localhost:5000 접속
+
+---
+
+## 📱 사용법
+
+1. **회원가입/로그인** → 계정 생성 후 로그인
+2. **메모 작성** → 플로팅 버튼(+)으로 메모 추가
+3. **검색** → 키워드 또는 `#태그명`으로 검색
+4. **복습 알림** → 헤더에서 복습할 메모 확인
+5. **라운지** → 메모 공유하고 댓글 작성
 
 ---
 
@@ -63,154 +63,75 @@
 
 ```
 jgnote/
-├── app.py                   # 메인 Flask 애플리케이션
-├── .env                     # 환경 변수 (비밀키 등)
-├── requirements.txt         # Python 의존성
-├── static/
-│   └── profile.png         # 프로필 이미지
-├── templates/
+├── app.py                    # Flask 메인 애플리케이션
+├── README.md                 # 프로젝트 문서
+├── .env                      # 환경 변수 (생성 필요)
+├── requirements.txt          # 의존성 패키지 목록 (생성 필요)
+├── static/                   # 정적 파일 폴더
+│   └── profile.png          # 기본 프로필 이미지
+├── templates/               # HTML 템플릿 폴더
 │   ├── login.html          # 로그인 페이지
 │   ├── register.html       # 회원가입 페이지
-│   ├── main.html           # 메인 메모 목록 페이지
+│   ├── main.html           # 메인 메모 관리 페이지
 │   ├── memo_add.html       # 메모 작성 페이지
-│   ├── memo_review.html    # 메모 상세보기 페이지
+│   ├── memo_edit.html      # 메모 수정 페이지
+│   ├── profile.html        # 프로필 페이지
 │   ├── reminder.html       # 복습 알림 페이지
-│   ├── profile.html        # 프로필 보기 페이지
-│   └── profile_edit.html   # 프로필 수정 페이지
-└── myenv/                  # Python 가상환경
+│   ├── lounge.html         # 라운지 페이지
+│   └── search.html         # 검색 결과 페이지
+└── myenv/                   # Python 가상환경 폴더
+    ├── bin/                 # 실행 파일들 (Linux/Mac)
+    ├── lib/                 # 설치된 패키지들
+    └── pyvenv.cfg          # 가상환경 설정
 ```
+
+### 파일별 주요 역할
+
+**🐍 Backend (app.py)**
+- Flask 애플리케이션 설정 및 라우팅
+- MongoDB 연결 및 데이터 처리
+- JWT 인증 및 세션 관리
+- RESTful API 엔드포인트 구현
+
+**🎨 Frontend (templates/)**
+- `login.html`, `register.html`: 사용자 인증
+- `main.html`: 메모 목록 및 관리 인터페이스
+- `memo_add.html`, `memo_edit.html`: 메모 CRUD 기능
+- `reminder.html`: 복습 알림 시스템
+- `lounge.html`: 커뮤니티 기능
+- `profile.html`: 사용자 프로필 관리
+
+**📦 정적 리소스 (static/)**
+- 이미지, CSS, JavaScript 파일들
+- 프로필 이미지 및 기타 에셋
 
 ---
 
-## 🚀 설치 및 실행
+## 📋 주요 API
 
-### 1. 저장소 클론
-```bash
-git clone https://github.com/JinSol-coder/jungle-note.git
-cd jungle-note
-```
-
-### 2. 가상환경 설정
-```bash
-python -m venv myenv
-source myenv/bin/activate  # Windows: myenv\Scripts\activate
-```
-
-### 3. 의존성 설치
-```bash
-pip install -r requirements.txt
-```
-
-### 4. MongoDB 설정
-- MongoDB를 로컬에 설치하고 실행
-- 기본 포트 27017에서 실행 확인
-
-### 5. 환경 변수 설정
-`.env` 파일을 생성하고 다음 내용 추가:
-```
-SECRET_KEY=your-secret-key-here
-```
-
-### 6. 애플리케이션 실행
-```bash
-python app.py
-```
-
-웹 브라우저에서 `http://localhost:5000` 접속
-
----
-
-## 📱 사용법
-
-### 1. 회원가입 및 로그인
-- `/login` 페이지에서 로그인 또는 회원가입 링크 클릭
-- 회원가입 후 로그인하여 메인 페이지 진입
-
-### 2. 메모 작성
-- 메인 페이지에서 "메모 추가" 버튼 클릭
-- 제목, 내용, 태그를 입력하여 메모 저장
-
-### 3. 메모 검색
-- 검색바에 키워드 입력 (제목/내용 검색)
-- `#태그명` 형식으로 태그 검색
-- 태그 클릭으로 해당 태그의 메모만 필터링
-
-### 4. 복습 알림 확인
-- 헤더의 "복습 알림" 메뉴에서 복습할 메모 확인
-- 알림 카드 클릭으로 메모 상세보기
-- 복습 완료 후 "×" 버튼으로 알림 제거
-
-### 5. 프로필 관리
-- 프로필 이미지 클릭으로 프로필 페이지 이동
-- 사용자 정보 수정 가능
-
----
-
-## 🎯 핵심 기능 상세
-
-### 🔍 검색 기능
-- **통합 검색**: 제목, 내용, 태그를 동시에 검색
-- **태그 검색**: `#JavaScript` 형식으로 특정 태그 검색
-- **실시간 필터링**: 검색 결과 즉시 반영
-
-### 🔔 복습 시스템
-- **자동 알림**: 설정된 시간 후 복습 알림 생성
-- **알림 관리**: 복습 완료 후 알림 숨김 처리
-- **시각적 표시**: 헤더에 복습할 메모 개수 배지 표시
-
-### 🎨 UI/UX
-- **포스트잇 디자인**: 친근하고 직관적인 노란색 포스트잇
-- **반응형 레이아웃**: 다양한 화면 크기 지원
-- **사용자 피드백**: 모든 작업에 대한 성공/실패 메시지
-
----
-
-## 🤝 GitHub 협업 가이드
-
-### 브랜치 전략
-```bash
-# 1. 최신 main 브랜치로 업데이트
-git checkout main
-git pull origin main
-
-# 2. 새 기능 브랜치 생성
-git checkout -b feature/기능명
-
-# 3. 작업 후 커밋
-git add .
-git commit -m "Add: 새로운 기능 설명"
-
-# 4. 브랜치 푸시
-git push origin feature/기능명
-
-# 5. GitHub에서 Pull Request 생성
-```
-
-### 커밋 메시지 규칙
-- `Add: 새로운 기능 추가`
-- `Fix: 버그 수정`
-- `Update: 기존 기능 개선`
-- `Style: UI/CSS 수정`
-- `Docs: 문서 업데이트`
+| 엔드포인트 | 메서드 | 설명 |
+|-----------|--------|------|
+| `/login` | GET/POST | 로그인 |
+| `/register` | POST | 회원가입 |
+| `/main` | GET | 메모 목록 |
+| `/memo_add` | GET/POST | 메모 작성 |
+| `/reminder` | GET | 복습 알림 |
+| `/lounge` | GET | 라운지 |
 
 ---
 
 ## 🔧 개발 환경
 
 - **Python**: 3.8+
-- **Flask**: 3.1.1
 - **MongoDB**: 4.0+
-- **Node.js**: (Tailwind CSS용)
+- **브라우저**: Chrome, Firefox, Safari
 
 ---
 
-## 📄 라이선스
+## 🤝 기여하기
 
-이 프로젝트는 정글 부트캠프 교육용으로 제작되었습니다.
-
----
-
-## 👥 기여자
-
-- 정글 부트캠프 참가자들
-- GitHub: [JinSol-coder](https://github.com/JinSol-coder)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/기능명`)
+3. Commit your Changes (`git commit -m 'Add: 새 기능'`)
+4. Push to the Branch (`git push origin feature/기능명`)
+5. Open a Pull Request
