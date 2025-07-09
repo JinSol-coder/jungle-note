@@ -40,27 +40,33 @@
             <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
         {% else %}
             {% for memo in memos %}
-            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-lg font-bold text-green-700 hover:underline cursor-pointer">
+            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full min-h-[80px]">
+                <div class="flex justify-between items-start h-full">
+                    <!-- 메인 컨텐츠 영역 -->
+                    <div class="flex-1 pr-16 pb-6">
+                        <h2 class="text-lg font-bold text-green-700 hover:underline cursor-pointer mb-2 overflow-hidden text-ellipsis whitespace-nowrap">
                             <a href="{{ url_for('review', memo_id=memo._id) }}">
                                 {{ memo.title }}
                             </a>
                         </h2>
-                        <!-- 좌: 문구 / 우: 날짜 -->
-                        <div class="flex justify-between items-center text-sm text-gray-600 mt-1">
+                        <div class="text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">
                             <span>학습한지 일주일이 지났습니다.</span>
-                            <span class="text-xs text-gray-400 ml-4">
-                                {% if memo.created_at.__class__.__name__ == 'datetime' %}
-                                    {{ memo.created_at.strftime('%Y.%m.%d') }}
-                                {% else %}
-                                    {{ memo.created_at[:10].replace('-', '.') }}
-                                {% endif %}
-                            </span>
                         </div>
                     </div>
-                    <button class="hide-btn text-red-500 font-bold text-xl" data-id="{{ memo._id }}">×</button>
+                    
+                    <!-- 닫기 버튼 -->
+                    <button class="hide-btn text-red-500 font-bold text-xl absolute top-4 right-4" data-id="{{ memo._id }}">×</button>
+                    
+                    <!-- 작성일 (카드 오른쪽 아래) -->
+                    <div class="absolute bottom-4 right-4">
+                        <span class="text-xs text-gray-400">
+                            {% if memo.created_at.__class__.__name__ == 'datetime' %}
+                                {{ memo.created_at.strftime('%Y.%m.%d') }}
+                            {% else %}
+                                {{ memo.created_at[:10].replace('-', '.') }}
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
             {% endfor %}

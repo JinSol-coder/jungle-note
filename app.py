@@ -262,7 +262,7 @@ def review(memo_id):
     if not memo:
         return abort(404, description="해당 메모를 찾을 수 없습니다.")
 
-    return render_template('review.html', memo=memo)
+    return render_template('memo_review.html', memo=memo)
 
 @app.route('/profile')
 @jwt_required()
