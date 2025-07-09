@@ -45,8 +45,8 @@
                 내용을 입력하세요
             </div>
             <input type="hidden" name="content" id="hiddenContent">
+            <input type="text" id="tags" placeholder="태그를 쉼표로 구분하여 입력 (예: 알고리즘, Python)" class="border px-3 py-2 rounded" />
         </div>
-
         <!-- 버튼 -->
         <div class="mt-6 flex justify-center space-x-4">
             <button type="submit" class="bg-orange-500 text-white px-10 py-2 rounded hover:bg-orange-600">저장</button>
@@ -79,6 +79,9 @@
         async function saveMemo() {
             const title = document.getElementById("title").value;
             const content = document.getElementById("editor").innerHTML;
+            const tagsRaw = document.getElementById('tags').value.trim();
+
+            const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
 
             const csrfToken = getCookie("csrf_access_token"); // 🍪 쿠키에서 CSRF 꺼내기
             const res = await fetch("/memo_add", {
@@ -87,7 +90,7 @@
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": csrfToken  // 🔒 CSRF 포함!
                 },
-                body: JSON.stringify({ title, content }),
+                body: JSON.stringify({ title, content, tags }),
                 credentials: "include"  // 🍪 쿠키 포함
             });
 

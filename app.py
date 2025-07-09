@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
+from bson.regex import Regex
 
 # 환경 변수 로딩
 load_dotenv()
@@ -18,8 +19,8 @@ app = Flask(__name__)
 # JWT 설정
 app.config['JWT_SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=60)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(minutes=360)
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 jwt = JWTManager(app)
 
@@ -103,13 +104,34 @@ def register_post():
 
     return jsonify({'success': True, 'msg': '회원가입 완료!'})
 
-# 메인 페이지
 @app.route('/main')
 @jwt_required()
 def main():
-    user = get_jwt_identity()
-    memos = list(memo_collection.find({'user_id': user}))
-    return render_template('main.html', memos=memos)
+    user_id = get_jwt_identity()
+    query = request.args.get('query', '').strip()
+    tag = request.args.get('tag', '').strip()
+
+    filter_query = { 'user_id': user_id }
+
+    if query.startswith('#'):
+        tag_keyword = query[1:].strip()
+        if tag_keyword:
+            filter_query['tags'] = tag_keyword
+    elif query:
+        regex = Regex(query, 'i')  # 대소문자 구분 없이
+        filter_query['$or'] = [
+            { 'title': regex },
+            { 'content': regex },
+            { 'tags': regex }  # 리스트에서도 검색 가능
+        ]
+    elif tag:
+        filter_query['tags'] = tag  # 정확히 일치하는 태그
+
+    memos = list(memo_collection.find(filter_query).sort('created_at', -1))
+
+    return render_template('main.html', memos=memos, selected_tag=tag, query=query)
+
+
 
 # 메모 추가
 @app.route('/memo_add', methods=["GET", "POST"])
@@ -123,11 +145,13 @@ def memo_add():
         title = data.get('title')
         content = data.get('content')
         user_id = get_jwt_identity()
+        tags = data.get('tags', [])
 
         memo_collection.insert_one({
             'user_id': user_id,
             'title': title,
             'content': content,
+            'tags': tags,
             'created_at': datetime.now(),
             'repeat_visible': True
         })

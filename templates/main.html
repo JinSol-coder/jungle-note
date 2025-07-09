@@ -32,13 +32,26 @@
         </div>
     </header>
 
-    <main class="w-full px-5 pt-10">
+    <!-- 검색 기능 -->
+    <main class="w-full px-5 pt-5">
+    <form method="GET" action="/main" class="mb-4 flex gap-2 justify-center">
+        <input type="text" name="query" placeholder="태그 검색: #[태그명]"
+            class="border rounded px-3 py-1 w-60" value="{{ request.args.get('query', '') }}">
+        <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded">검색</button>
+    </form>
+
+    <!-- 메모 정렬 -->
     <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
         {% for memo in memos %}
             <div onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`, `{{ memo._id }}`)"
                     class="cursor-pointer w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition">
                 <h2 class="text-sm font-semibold text-gray-800 mb-2">{{ memo.title }}</h2>
                 <p class="text-xs text-gray-600 line-clamp-6">{{ memo.content | safe }}</p>
+                {% for tag in memo.tags %}
+                    <span class="inline-block bg-gray-200 text-sm px-2 py-0.5 rounded mr-1 cursor-default select-none">
+                        #{{ tag }}
+                    </span>
+                {% endfor %}
             </div>
         {% endfor %}
 
@@ -52,7 +65,7 @@
         <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
         <p class="text-xs text-gray-600">블라블라브랄브라블라블라</p>
         </div> -->
-
+        
     </div>
     </main>
 
