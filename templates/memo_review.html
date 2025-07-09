@@ -8,10 +8,17 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <!-- 포스트잇 스타일 메모 카드 -->
-    <div class="max-w-lg w-full bg-yellow-200 shadow-lg transform rotate-1 relative mx-auto mt-10">
+    <div class="max-w-lg w-full {% if memo.share %}bg-purple-200{% else %}bg-yellow-200{% endif %} shadow-lg transform rotate-1 relative mx-auto mt-10">
         <!-- 포스트잇 상단 접착 테이프 효과 (더 뚜렷하게) -->
         <div class="absolute -top-1 left-1/4 w-20 h-8 bg-gray-200 opacity-80 rounded-b-lg shadow-md border border-gray-300"></div>
         <div class="absolute -top-1 left-1/4 w-20 h-8 bg-white opacity-60 rounded-b-lg"></div>
+        
+        <!-- 라운지 공유 표시 -->
+        {% if memo.share %}
+        <div class="absolute top-2 right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold z-10" title="라운지에 공유된 메모">
+            📢
+        </div>
+        {% endif %}
         
         <!-- 메모 내용 -->
         <div class="pt-10 pl-6 pr-8 pb-4">
@@ -25,7 +32,7 @@
             {% if memo.tags %}
             <div class="flex flex-wrap gap-2 mb-4">
                 {% for tag in memo.tags %}
-                    <span class="text-xs text-gray-600 bg-yellow-300 px-2 py-1 rounded-full">
+                    <span class="text-xs text-gray-600 {% if memo.share %}bg-purple-300{% else %}bg-yellow-300{% endif %} px-2 py-1 rounded-full">
                         #{{ tag }}
                     </span>
                 {% endfor %}
@@ -54,7 +61,7 @@
         </div>
         
         <!-- 포스트잇 그림자 효과 -->
-        <div class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+        <div class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     </div>
 
     <script>

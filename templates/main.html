@@ -63,11 +63,18 @@
                     <!-- 포스트잇 스타일 메모 카드 -->
                     <div class="relative group">
                         <a href="/memo/{{ memo._id }}" 
-                           class="block w-full max-w-[250px] h-[320px] bg-yellow-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
+                           class="block w-full max-w-[250px] h-[320px] {% if memo.share %}bg-purple-200{% else %}bg-yellow-200{% endif %} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
                         
                         <!-- 포스트잇 상단 테이프 효과 -->
                         <div class="absolute -top-1 left-1/4 w-16 h-6 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
                         <div class="absolute -top-1 left-1/4 w-16 h-6 bg-white opacity-50 rounded-b-md"></div>
+                        
+                        <!-- 라운지 공유 표시 -->
+                        {% if memo.share %}
+                        <div class="absolute top-1 left-2 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs z-10" title="라운지에 공유된 메모">
+                            📢
+                        </div>
+                        {% endif %}
                         
                         <!-- 메모 내용 -->
                         <div class="p-4 pt-8 h-full flex flex-col">
@@ -82,7 +89,7 @@
                             {% if memo.tags %}
                             <div class="flex flex-wrap gap-1 mt-3 ml-1">
                                 {% for tag in memo.tags %}
-                                    <span class="text-xs text-gray-600 bg-yellow-300 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    <span class="text-xs text-gray-600 {% if memo.share %}bg-purple-300{% else %}bg-yellow-300{% endif %} px-2 py-0.5 rounded-full whitespace-nowrap">
                                         #{{ tag }}
                                     </span>
                                 {% endfor %}
@@ -91,17 +98,17 @@
                         </div>
                         
                             <!-- 포스트잇 그림자 효과 -->
-                            <div class="absolute inset-0 bg-yellow-400 opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+                            <div class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
                         </a>
 
                         <!-- 라운지 공유 버튼 -->
-                        <button class="share-btn absolute top-2 right-2 w-8 h-8 rounded-full text-sm transition-all duration-200 z-10 opacity-0 group-hover:opacity-100
+                        <button class="share-btn absolute bottom-2 right-2 w-8 h-8 rounded-full text-sm transition-all duration-200 z-10 opacity-0 group-hover:opacity-100
                                 {% if memo.share %}bg-purple-500 text-white{% else %}bg-white text-gray-600 border border-gray-300{% endif %}"
                                 data-memo-id="{{ memo._id }}"
                                 data-shared="{% if memo.share %}true{% else %}false{% endif %}"
                                 title="{% if memo.share %}라운지에서 제거{% else %}라운지에 공유{% endif %}">
                             {% if memo.share %}
-                                ✓
+                                ⇆
                             {% else %}
                                 📢
                             {% endif %}

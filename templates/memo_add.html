@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메모 추가</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-active {
+            background-color: rgb(251 191 36) !important; /* bg-yellow-400 */
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
 
@@ -22,20 +27,19 @@
             <form id="memoForm" onsubmit="return false;">
                 <!-- 제목 입력 -->
                 <input type="text" id="title" name="title" 
-                       class="w-full border-0 border-b-2 border-gray-400 bg-transparent px-2 py-2 mb-6 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2" 
+                       class="w-full bg-yellow-300 border-0 border-b-2 border-gray-400 bg-transparent px-2 py-2 mb-6 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2" 
                        placeholder="제목을 입력하세요"/>
 
                 <!-- 간단한 툴바 -->
                 <div class="flex space-x-2 mb-4 ml-2">
-                    <button type="button" onclick="execCmd('bold')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold">B</button>
-                    <button type="button" onclick="execCmd('italic')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic">I</button>
-                    <button type="button" onclick="execCmd('underline')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline">U</button>
-                    <button type="button" onclick="toggleTextAlign()" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm">중앙</button>
-                    <button type="button" onclick="toggleChat()" class="px-2 py-1 bg-blue-300 hover:bg-blue-400 rounded text-sm">🤖 AI 도움</button>
+                    <button type="button" id="boldBtn" onclick="execCmd('bold')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold transition-colors">B</button>
+                    <button type="button" id="italicBtn" onclick="execCmd('italic')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic transition-colors">I</button>
+                    <button type="button" id="underlineBtn" onclick="execCmd('underline')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline transition-colors">U</button>
+                    <button type="button" id="alignBtn" onclick="toggleTextAlign()" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm transition-colors">중앙</button>
                 </div>
 
                 <!-- 내용 입력 영역 -->
-                <div class="relative mb-6 ml-2">
+                <div class="relative mb-6 ml-2 bg-yellow-300">
                     <div id="editor" contenteditable="true"
                         class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto min-h-[192px] max-h-[192px]">
                     </div>
@@ -47,7 +51,7 @@
 
                 <!-- 태그 입력 -->
                 <input type="text" id="tags" 
-                       class="w-full border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-4 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
+                       class="w-full bg-yellow-300 border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-4 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
                        placeholder="태그 (쉼표로 구분)" />
 
                 <!-- 라운지 공유 체크박스 -->
@@ -86,6 +90,7 @@
         function execCmd(command, value = null) {
             editor.focus();
             document.execCommand(command, false, value);
+            updateButtonStates(); // 명령 실행 후 버튼 상태 업데이트
         }
 
         // 안전한 텍스트 정렬 함수
@@ -99,17 +104,57 @@
                 editor.style.textAlign = 'center';
                 isTextCentered = true;
             }
+            updateButtonStates(); // 정렬 변경 후 버튼 상태 업데이트
         }
 
-        // AI 채팅 관련 함수들 (임시 - 실제 채팅창은 별도 추가 필요)
-        function toggleChat() {
-            alert('AI 채팅 기능은 OpenAI API 키 설정 후 이용 가능합니다!');
+        // 버튼 상태 업데이트 함수
+        function updateButtonStates() {
+            const boldBtn = document.getElementById('boldBtn');
+            const italicBtn = document.getElementById('italicBtn');
+            const underlineBtn = document.getElementById('underlineBtn');
+            const alignBtn = document.getElementById('alignBtn');
+
+            // execCommand 상태 확인
+            if (document.queryCommandState('bold')) {
+                boldBtn.classList.add('btn-active');
+            } else {
+                boldBtn.classList.remove('btn-active');
+            }
+
+            if (document.queryCommandState('italic')) {
+                italicBtn.classList.add('btn-active');
+            } else {
+                italicBtn.classList.remove('btn-active');
+            }
+
+            if (document.queryCommandState('underline')) {
+                underlineBtn.classList.add('btn-active');
+            } else {
+                underlineBtn.classList.remove('btn-active');
+            }
+
+            // 텍스트 정렬 상태 확인
+            if (isTextCentered) {
+                alignBtn.classList.add('btn-active');
+            } else {
+                alignBtn.classList.remove('btn-active');
+            }
         }
 
-        editor.addEventListener('input', togglePlaceholder);
-        editor.addEventListener('focus', togglePlaceholder);
+        editor.addEventListener('input', function() {
+            togglePlaceholder();
+            updateButtonStates();
+        });
+        editor.addEventListener('focus', function() {
+            togglePlaceholder();
+            updateButtonStates();
+        });
         editor.addEventListener('blur', togglePlaceholder);
+        editor.addEventListener('keyup', updateButtonStates);
+        editor.addEventListener('mouseup', updateButtonStates);
+        
         togglePlaceholder();
+        updateButtonStates(); // 초기 상태 설정
 
         // submit 전에 내용값 저장
         async function saveMemo() {
