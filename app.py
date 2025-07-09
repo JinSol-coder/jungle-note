@@ -104,6 +104,7 @@ def register_post():
 
     return jsonify({'success': True, 'msg': '회원가입 완료!'})
 
+# 메인
 @app.route('/main')
 @jwt_required()
 def main():
