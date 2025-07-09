@@ -35,12 +35,12 @@
     </header>
 
     <!-- 메모 카드 -->
-    <div class="w-full max-w-xl mt-10 px-4">
+    <div class="w-full max-w-8xl mt-10 px-4">
         {% if memos|length == 0 %}
             <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
         {% else %}
             {% for memo in memos %}
-            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative">
+            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full">
                 <div class="flex justify-between items-start">
                     <div>
                         <h2 class="text-lg font-bold text-green-700 hover:underline cursor-pointer">

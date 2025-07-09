@@ -32,29 +32,29 @@
         </div>
     </header>
 
-    <main class="w-full px-5 pt-10">
-    <div class="max-w-screen-xl mx-auto flex flex-wrap gap-10 justify-start">
-        {% for memo in memos %}
-            <div onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`, `{{ memo._id }}`)"
-                    class="cursor-pointer w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition">
-                <h2 class="text-sm font-semibold text-gray-800 mb-2">{{ memo.title }}</h2>
-                <p class="text-xs text-gray-600 line-clamp-6">{{ memo.content | safe }}</p>
-            </div>
-        {% endfor %}
-
-<!-- 
-        <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
-        <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
-        <p class="text-xs text-gray-600">내용내용뭐시기</p>
+    <main class="w-full px-10 pt-10">
+        <div
+            class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
+            
+            {% for memo in memos %}
+                <div
+                    onclick="openModal(`{{ memo.title|escape }}`, `{{ memo.content|escape }}`, `{{ memo._id }}`)"
+                    class="cursor-pointer w-full max-w-[250px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md hover:shadow-lg transition flex flex-col overflow-hidden">
+                    
+                    <h2 class="text-sm font-semibold text-gray-800 mb-2 line-clamp-1 break-words">
+                        {{ memo.title }}
+                    </h2>
+                    <p class="text-xs text-gray-600 line-clamp-6 break-words">
+                        {{ memo.content | safe }}
+                    </p>
+                </div>
+            {% endfor %}
+            
         </div>
-
-        <div class="w-[300px] h-[300px] bg-yellow-100 border border-yellow-300 rounded p-5 shadow-md">
-        <h2 class="text-sm font-semibold text-gray-800 mb-2">제목</h2>
-        <p class="text-xs text-gray-600">블라블라브랄브라블라블라</p>
-        </div> -->
-
-    </div>
     </main>
+
+
+
 
     <!-- + 버튼 -->
     <a href="/memo_add"
