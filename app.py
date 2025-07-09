@@ -263,15 +263,14 @@ def hide_memo():
 @jwt_required()
 def review(memo_id):
     user_id = get_jwt_identity()
-
     memo = memo_collection.find_one({
-        '_id': ObjectId(memo_id),
-        'user_id': user_id
+        '_id': ObjectId(memo_id)
     })
-
     if not memo:
         return abort(404, description="해당 메모를 찾을 수 없습니다.")
-
+    # 본인 메모이거나 공유된 메모만 접근 가능
+    if memo['user_id'] != user_id and not memo.get('share', False):
+        return abort(403, description="접근 권한이 없습니다.")
     return render_template('memo_review.html', memo=memo)
 
 @app.route('/profile')

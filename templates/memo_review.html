@@ -15,22 +15,22 @@
         <!-- 포스트잇 상단 접착 테이프 효과 (더 뚜렷하게) -->
         <div class="absolute -top-1 left-1/4 w-20 h-8 bg-gray-200 opacity-80 rounded-b-lg shadow-md border border-gray-300"></div>
         <div class="absolute -top-1 left-1/4 w-20 h-8 bg-white opacity-60 rounded-b-lg"></div>
-        
+       
         <!-- 라운지 공유 표시 -->
         {% if memo.share %}
         <div class="absolute top-2 right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold z-10" title="라운지에 공유된 메모">
             📢
         </div>
         {% endif %}
-        
+       
         <!-- 메모 내용 -->
         <div class="pt-10 pl-6 pr-8 pb-4">
-            <h1 class="text-xl font-bold text-gray-800 mb-6 leading-relaxed ml-2 break-words">{{ memo.title }}</h1>
-            
-            <div class="text-gray-700 leading-relaxed mb-6 min-h-[200px] ml-2 break-words whitespace-pre-wrap">
+            <h1 class="text-xl font-bold text-gray-800 mb-6 leading-relaxed break-words">{{ memo.title }}</h1>
+           
+            <div class="text-gray-700 leading-relaxed mb-6 min-h-[200px] break-words whitespace-pre-line">
                 {{ memo.content | safe }}
             </div>
-            
+           
             <!-- 태그가 있다면 표시 -->
             {% if memo.tags %}
             <div class="flex flex-wrap gap-2 mb-4">
@@ -41,17 +41,17 @@
                 {% endfor %}
             </div>
             {% endif %}
-            
+           
             <!-- 학습일 -->
             <p class="text-sm text-gray-600 text-right mb-6">
-                학습일: 
+                학습일:
                 {% if memo.created_at.__class__.__name__ == 'datetime' %}
                     {{ memo.created_at.strftime('%Y.%m.%d') }}
                 {% else %}
                     {{ memo.created_at[:10].replace('-', '.') }}
                 {% endif %}
             </p>
-            
+           
             <!-- 돌아가기 버튼 -->
             <div class="flex justify-between items-center">
                 <button onclick="history.back()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
@@ -62,7 +62,7 @@
                 </button>
             </div>
         </div>
-        
+       
         <!-- 포스트잇 그림자 효과 -->
         <div class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     <!-- 댓글 영역 (라운지 공유 메모만) -->
@@ -71,7 +71,7 @@
         <!-- 댓글 작성 폼 -->
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <h2 class="text-lg font-medium text-gray-800 mb-4">댓글 작성</h2>
-            
+           
             <div>
                 <textarea
                     id="comment-input"
@@ -80,7 +80,7 @@
                     class="w-full border border-gray-300 rounded-lg p-3 resize-none focus:outline-none focus:border-purple-500"
                 ></textarea>
             </div>
-            
+           
             <div class="flex justify-end mt-3">
                 <button
                     id="comment-submit"
@@ -90,7 +90,7 @@
                 </button>
             </div>
         </div>
-        
+       
         <!-- 댓글 목록 표시 영역 -->
         <div id="comment-list" class="space-y-4">
             <!-- 댓글들이 여기에 동적으로 추가됩니다 -->
@@ -136,26 +136,26 @@
     {% if memo.share %}
     <script>
         const memoId = "{{ memo._id }}";
-        
+       
         // 성공 메시지 표시 함수
         function showSuccessMessage() {
             const successDiv = document.createElement('div');
             successDiv.className = 'fixed top-20 right-6 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
             successDiv.innerHTML = '댓글이 작성되었습니다!';
             document.body.appendChild(successDiv);
-            
+           
             // 2초 후 제거
             setTimeout(() => {
                 document.body.removeChild(successDiv);
             }, 2000);
         }
-        
+       
         // 댓글 삭제 함수
         async function deleteComment(commentId) {
             if (!confirm("정말 이 댓글을 삭제할까요?")) return;
-            
+           
             const csrfToken = getCookie("csrf_access_token");
-            
+           
             try {
                 const response = await fetch(`/comments/${commentId}`, {
                     method: 'DELETE',
@@ -164,9 +164,9 @@
                     },
                     credentials: 'include'
                 });
-                
+               
                 const data = await response.json();
-                
+               
                 if (data.success) {
                     alert("댓글이 삭제되었습니다!");
                     await loadComments(); // 댓글 목록 새로고침
@@ -178,7 +178,7 @@
                 console.error('댓글 삭제 에러:', error);
             }
         }
-        
+       
         async function loadComments() {
             try {
                 const response = await fetch(`/comments/${memoId}`, {
@@ -219,7 +219,7 @@
                                     <div class="flex items-center space-x-2">
                                         <span class="text-xs text-gray-500">${comment.created_at || '날짜 없음'}</span>
                                         ${comment.is_mine ? `
-                                            <button onclick="deleteComment('${comment._id}')" 
+                                            <button onclick="deleteComment('${comment._id}')"
                                                     class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">
                                                 삭제
                                             </button>
@@ -243,7 +243,7 @@
                 `;
             }
         }
-        
+       
         document.getElementById('comment-submit').addEventListener('click', async () => {
             const content = document.getElementById('comment-input').value.trim();
             if (!content) {
@@ -268,10 +268,10 @@
                 console.log('댓글 작성 응답:', data); // 디버깅용
                 if (data.success) {
                     document.getElementById('comment-input').value = '';
-                    
+                   
                     // 성공 메시지 표시
                     showSuccessMessage();
-                    
+                   
                     await loadComments(); // 댓글 새로고침
                 } else {
                     alert("댓글 작성 실패: " + (data.msg || '알 수 없는 오류'));
@@ -281,7 +281,7 @@
                 console.error('댓글 작성 에러:', error);
             }
         });
-        
+       
         // 엔터키로 댓글 작성
         document.getElementById('comment-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -289,7 +289,7 @@
                 document.getElementById('comment-submit').click();
             }
         });
-        
+       
         document.addEventListener('DOMContentLoaded', loadComments);
     </script>
     {% endif %}

@@ -137,213 +137,6 @@
       <div
         class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     </div>
-
-    <!-- 메모 작성 기능 스크립트 -->
-    <script>
-      const editor = document.getElementById("editor");
-      const placeholder = document.getElementById("placeholder");
-
-      function togglePlaceholder() {
-        placeholder.style.display =
-          editor.innerText.trim() === "" ? "block" : "none";
-      }
-
-      function execCmd(command, value = null) {
-        editor.focus();
-        document.execCommand(command, false, value);
-        updateButtonStates(); // 명령 실행 후 버튼 상태 업데이트
-      }
-
-      // 안전한 텍스트 정렬 함수
-      let isTextCentered = false;
-      function toggleTextAlign() {
-        editor.focus();
-        if (isTextCentered) {
-          editor.style.textAlign = "left";
-          isTextCentered = false;
-        } else {
-          editor.style.textAlign = "center";
-          isTextCentered = true;
-        }
-        updateButtonStates(); // 정렬 변경 후 버튼 상태 업데이트
-      }
-
-      // 버튼 상태 업데이트 함수
-      function updateButtonStates() {
-        const boldBtn = document.getElementById("boldBtn");
-        const italicBtn = document.getElementById("italicBtn");
-        const underlineBtn = document.getElementById("underlineBtn");
-        const alignBtn = document.getElementById("alignBtn");
-
-        // execCommand 상태 확인
-        if (document.queryCommandState("bold")) {
-          boldBtn.classList.add("btn-active");
-        } else {
-          boldBtn.classList.remove("btn-active");
-        }
-
-        if (document.queryCommandState("italic")) {
-          italicBtn.classList.add("btn-active");
-        } else {
-          italicBtn.classList.remove("btn-active");
-        }
-
-        if (document.queryCommandState("underline")) {
-          underlineBtn.classList.add("btn-active");
-        } else {
-          underlineBtn.classList.remove("btn-active");
-        }
-
-        // 텍스트 정렬 상태 확인
-        if (isTextCentered) {
-          alignBtn.classList.add("btn-active");
-        } else {
-          alignBtn.classList.remove("btn-active");
-        }
-      }
-
-      editor.addEventListener("input", function () {
-        togglePlaceholder();
-        updateButtonStates();
-      });
-      editor.addEventListener("focus", function () {
-        togglePlaceholder();
-        updateButtonStates();
-      });
-      editor.addEventListener("blur", togglePlaceholder);
-      editor.addEventListener("keyup", updateButtonStates);
-      editor.addEventListener("mouseup", updateButtonStates);
-
-      togglePlaceholder();
-      updateButtonStates(); // 초기 상태 설정
-
-      // submit 전에 내용값 저장
-      async function saveMemo() {
-        const title = document.getElementById("title").value;
-        const content = document.getElementById("editor").innerHTML;
-        const tagsRaw = document.getElementById("tags").value.trim();
-        const shareToLounge = document.getElementById("shareToLounge").checked;
-
-        if (!title.trim()) {
-          alert("제목을 입력해주세요!");
-          return;
-        }
-
-        if (!content.trim()) {
-          alert("내용을 입력해주세요!");
-          return;
-        }
-
-        const tags = tagsRaw
-          ? tagsRaw
-              .split(",")
-              .map((t) => t.trim())
-              .filter((t) => t)
-          : [];
-
-        const csrfToken = getCookie("csrf_access_token");
-        try {
-          const res = await fetch("/memo_add", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": csrfToken,
-            },
-            body: JSON.stringify({
-              title,
-              content,
-              tags,
-              share: shareToLounge,
-            }),
-            credentials: "include",
-          });
-
-          if (!res.ok) {
-            alert("메모 저장 실패!");
-            return;
-          }
-          alert("저장 완료!");
-          window.location.href = "/main";
-        } catch (error) {
-          alert("오류가 발생했습니다.");
-        }
-      }
-
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(";").shift();
-      }
-
-      document
-        .getElementById("memoForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          saveMemo();
-        });
-      // AI 채팅 기능
-      function toggleChat() {
-        const panel = document.getElementById("aiPanel");
-        panel.classList.toggle("hidden");
-      }
-      async function sendMessage() {
-        const input = document.getElementById("chatInput");
-        const message = input.value.trim();
-        if (!message) return;
-
-        const chatWindow = document.getElementById("chatWindow");
-        chatWindow.innerHTML += `<div class="mb-1"><strong>🙋‍♀️ : </strong> ${message}</div>`;
-        input.value = "";
-
-        // ✅ GPT 응답 대기 표시
-        const thinkingId = `thinking-${Date.now()}`;
-        chatWindow.innerHTML += `<div class="mb-1 text-gray-500" id="${thinkingId}">🤖 : ⏳ GPT가 생각 중입니다...</div>`;
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        try {
-          const csrfToken = getCookie("csrf_access_token");
-          const res = await fetch("/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": csrfToken,
-            },
-            credentials: "include",
-            body: JSON.stringify({ message }),
-          });
-
-          const data = await res.json();
-          const raw = data.reply;
-
-          try {
-            const parsed = JSON.parse(raw);
-            const finalMsg = `<strong>🤖 : </strong> 💭${parsed.insight}<br>🚀${parsed.summary}<br>🛬${parsed.action}`;
-
-            // ✅ 대기 메시지를 실제 응답으로 교체
-            document.getElementById(thinkingId).innerHTML = finalMsg;
-          } catch (err) {
-            document.getElementById(
-              thinkingId
-            ).innerHTML = `<span class="text-red-500">:x: GPT 응답 파싱 실패</span>`;
-          }
-
-          chatWindow.scrollTop = chatWindow.scrollHeight;
-        } catch (err) {
-          document.getElementById(
-            thinkingId
-          ).innerHTML = `<span class="text-red-500">:x: GPT 응답 실패</span>`;
-        }
-      }
-
-      editor.addEventListener("paste", function (e) {
-        e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData(
-          "text/plain"
-        );
-        document.execCommand("insertText", false, text);
-      });
-    </script>
-
     <!-- GPT 대화 패널 -->
     <div
       id="aiPanel"
@@ -372,6 +165,221 @@
           class="bg-blue-500 text-white px-3 py-1 rounded text-sm">
           전송
         </button>
+        <!-- 메모 작성 기능 스크립트 -->
+        <script>
+          const editor = document.getElementById("editor");
+          const placeholder = document.getElementById("placeholder");
+
+          function togglePlaceholder() {
+            placeholder.style.display =
+              editor.innerText.trim() === "" ? "block" : "none";
+          }
+
+          function execCmd(command, value = null) {
+            editor.focus();
+            document.execCommand(command, false, value);
+            updateButtonStates(); // 명령 실행 후 버튼 상태 업데이트
+          }
+
+          // 안전한 텍스트 정렬 함수
+          let isTextCentered = false;
+          function toggleTextAlign() {
+            editor.focus();
+            if (isTextCentered) {
+              editor.style.textAlign = "left";
+              isTextCentered = false;
+            } else {
+              editor.style.textAlign = "center";
+              isTextCentered = true;
+            }
+            updateButtonStates(); // 정렬 변경 후 버튼 상태 업데이트
+          }
+
+          // 버튼 상태 업데이트 함수
+          function updateButtonStates() {
+            const boldBtn = document.getElementById("boldBtn");
+            const italicBtn = document.getElementById("italicBtn");
+            const underlineBtn = document.getElementById("underlineBtn");
+            const alignBtn = document.getElementById("alignBtn");
+
+            // execCommand 상태 확인
+            if (document.queryCommandState("bold")) {
+              boldBtn.classList.add("btn-active");
+            } else {
+              boldBtn.classList.remove("btn-active");
+            }
+
+            if (document.queryCommandState("italic")) {
+              italicBtn.classList.add("btn-active");
+            } else {
+              italicBtn.classList.remove("btn-active");
+            }
+
+            if (document.queryCommandState("underline")) {
+              underlineBtn.classList.add("btn-active");
+            } else {
+              underlineBtn.classList.remove("btn-active");
+            }
+
+            // 텍스트 정렬 상태 확인
+            if (isTextCentered) {
+              alignBtn.classList.add("btn-active");
+            } else {
+              alignBtn.classList.remove("btn-active");
+            }
+          }
+
+          editor.addEventListener("input", function () {
+            togglePlaceholder();
+            updateButtonStates();
+          });
+          editor.addEventListener("focus", function () {
+            togglePlaceholder();
+            updateButtonStates();
+          });
+          editor.addEventListener("blur", togglePlaceholder);
+          editor.addEventListener("keyup", updateButtonStates);
+          editor.addEventListener("mouseup", updateButtonStates);
+
+          togglePlaceholder();
+          updateButtonStates(); // 초기 상태 설정
+
+          // submit 전에 내용값 저장
+          async function saveMemo() {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("editor").innerHTML;
+            const tagsRaw = document.getElementById("tags").value.trim();
+            const shareToLounge =
+              document.getElementById("shareToLounge").checked;
+
+            if (!title.trim()) {
+              alert("제목을 입력해주세요!");
+              return;
+            }
+
+            if (!content.trim()) {
+              alert("내용을 입력해주세요!");
+              return;
+            }
+
+            const tags = tagsRaw
+              ? tagsRaw
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter((t) => t)
+              : [];
+
+            const csrfToken = getCookie("csrf_access_token");
+            try {
+              const res = await fetch("/memo_add", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRF-TOKEN": csrfToken,
+                },
+                body: JSON.stringify({
+                  title,
+                  content,
+                  tags,
+                  share: shareToLounge,
+                }),
+                credentials: "include",
+              });
+
+              if (!res.ok) {
+                alert("메모 저장 실패!");
+                return;
+              }
+              alert("저장 완료!");
+              window.location.href = "/main";
+            } catch (error) {
+              alert("오류가 발생했습니다.");
+            }
+          }
+
+          function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(";").shift();
+          }
+
+          document
+            .getElementById("memoForm")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+              saveMemo();
+            });
+          // AI 채팅 기능
+          function toggleChat() {
+            const panel = document.getElementById("aiPanel");
+            panel.classList.toggle("hidden");
+          }
+          async function sendMessage() {
+            const input = document.getElementById("chatInput");
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatWindow = document.getElementById("chatWindow");
+            chatWindow.innerHTML += `<div class="mb-1"><strong>🙋‍♀️ : </strong> ${message}</div>`;
+            input.value = "";
+
+            // ✅ GPT 응답 대기 표시
+            const thinkingId = `thinking-${Date.now()}`;
+            chatWindow.innerHTML += `<div class="mb-1 text-gray-500" id="${thinkingId}">🤖 : ⏳ GPT가 생각 중입니다...</div>`;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+              const csrfToken = getCookie("csrf_access_token");
+              const res = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRF-TOKEN": csrfToken,
+                },
+                credentials: "include",
+                body: JSON.stringify({ message }),
+              });
+
+              const data = await res.json();
+              const raw = data.reply;
+
+              try {
+                const parsed = JSON.parse(raw);
+                const finalMsg = `<strong>🤖 : </strong> 💭${parsed.insight}<br>🚀${parsed.summary}<br>🛬${parsed.action}`;
+
+                // ✅ 대기 메시지를 실제 응답으로 교체
+                document.getElementById(thinkingId).innerHTML = finalMsg;
+              } catch (err) {
+                document.getElementById(
+                  thinkingId
+                ).innerHTML = `<span class="text-red-500">:x: GPT 응답 파싱 실패</span>`;
+              }
+
+              chatWindow.scrollTop = chatWindow.scrollHeight;
+            } catch (err) {
+              document.getElementById(
+                thinkingId
+              ).innerHTML = `<span class="text-red-500">:x: GPT 응답 실패</span>`;
+            }
+          }
+
+          editor.addEventListener("paste", function (e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData(
+              "text/plain"
+            );
+            document.execCommand("insertText", false, text);
+          });
+          // 기존 코드 아래쪽에 추가
+          document
+            .getElementById("chatInput")
+            .addEventListener("keydown", function (e) {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); // 줄바꿈 방지
+                sendMessage(); // 메시지 전송
+              }
+            });
+        </script>
       </div>
     </div>
   </body>
