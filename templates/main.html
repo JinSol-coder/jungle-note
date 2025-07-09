@@ -68,9 +68,9 @@
                             <h2 class="text-sm font-bold text-gray-800 mb-3 line-clamp-2 break-words leading-tight ml-1">
                                 {{ memo.title }}
                             </h2>
-                            <p class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1">
+                            <div class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1 overflow-hidden" style="text-align: left !important;">
                                 {{ memo.content | safe }}
-                            </p>
+                            </div>
                             
                             <!-- 태그 영역 -->
                             {% if memo.tags %}

@@ -30,13 +30,14 @@
                     <button type="button" onclick="execCmd('bold')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold">B</button>
                     <button type="button" onclick="execCmd('italic')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic">I</button>
                     <button type="button" onclick="execCmd('underline')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline">U</button>
-                    <button type="button" onclick="execCmd('justifyCenter')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm">중앙</button>
+                    <button type="button" onclick="toggleTextAlign()" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm">중앙</button>
+                    <button type="button" onclick="toggleChat()" class="px-2 py-1 bg-blue-300 hover:bg-blue-400 rounded text-sm">🤖 AI 도움</button>
                 </div>
 
                 <!-- 내용 입력 영역 -->
                 <div class="relative mb-6 ml-2">
                     <div id="editor" contenteditable="true"
-                        class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto">
+                        class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto min-h-[192px] max-h-[192px]">
                     </div>
                     <div id="placeholder"
                         class="absolute top-2 left-2 text-gray-500 pointer-events-none select-none">
@@ -77,6 +78,24 @@
         function execCmd(command, value = null) {
             editor.focus();
             document.execCommand(command, false, value);
+        }
+
+        // 안전한 텍스트 정렬 함수
+        let isTextCentered = false;
+        function toggleTextAlign() {
+            editor.focus();
+            if (isTextCentered) {
+                editor.style.textAlign = 'left';
+                isTextCentered = false;
+            } else {
+                editor.style.textAlign = 'center';
+                isTextCentered = true;
+            }
+        }
+
+        // AI 채팅 관련 함수들 (임시 - 실제 채팅창은 별도 추가 필요)
+        function toggleChat() {
+            alert('AI 채팅 기능은 OpenAI API 키 설정 후 이용 가능합니다!');
         }
 
         editor.addEventListener('input', togglePlaceholder);
