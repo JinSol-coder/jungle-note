@@ -112,15 +112,6 @@
                                 <!-- 포스트잇 그림자 효과 -->
                                 <div class="absolute inset-0 bg-purple-400 opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
                             </a>
-
-                            <!-- 삭제 버튼 (본인 메모만) -->
-                            {% if memo.user_id == current_user %}
-                                <button onclick="unshareFromLounge('{{ memo._id }}')" 
-                                        class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors z-10"
-                                        title="라운지에서 제거">
-                                    ×
-                                </button>
-                            {% endif %}
                         </div>
                     {% endfor %}
                 {% endif %}
