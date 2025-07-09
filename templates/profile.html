@@ -17,7 +17,14 @@
       <a href="/main" class="hover:text-blue-500 hover:border-blue-500">메모</a>
     </div>
     <div class="flex-[1.5] flex justify-center items-center">
-      <a href="/reminder" class="hover:text-blue-500 hover:border-blue-500">복습 알림</a>
+      <a href="/reminder" class="hover:text-blue-500 hover:border-blue-500 relative">
+        복습 알림 {% if review_count > 0 %}
+        <span
+            class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            {{ review_count }}
+        </span>
+        {% endif %}
+      </a>
     </div>
     <div class="flex-1 flex justify-center items-center">
       <a href="/profile">

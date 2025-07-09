@@ -148,6 +148,7 @@ def main():
 @jwt_required()  # 이거 없으면 로그인 없이 접근 가능함
 def memo_add():
     if request.method == 'GET':
+        # 복습할 메모 개수 계산 (헤더 알림용) - memo_add.html에는 헤더가 없음
         return render_template('memo_add.html')  # 메모 작성 폼 페이지 렌더링
 
     if request.method == 'POST':
@@ -217,7 +218,14 @@ def reminder():
         'repeat_visible': True
     }).sort('created_at', -1))  # -1: 내림차순
 
-    return render_template('reminder.html', memos=repeat_memos)
+    # 복습할 메모 개수 계산 (헤더 알림용)
+    review_count = memo_collection.count_documents({
+        'user_id': user_id,
+        'created_at': { '$lte': threshold_datetime },
+        'repeat_visible': True
+    })
+
+    return render_template('reminder.html', memos=repeat_memos, review_count=review_count)
 
 # 완료된 할 일
 @app.route('/hide_memo', methods=['POST'])
@@ -269,7 +277,16 @@ def review(memo_id):
 def profile():
     user_id = get_jwt_identity()
     user = user_collection.find_one({'user_id': user_id}, {'_id': False})
-    return render_template('profile.html', user=user)
+    
+    # 복습할 메모 개수 계산 (헤더 알림용)
+    threshold_datetime = datetime.now() - timedelta(minutes=1)
+    review_count = memo_collection.count_documents({
+        'user_id': user_id,
+        'created_at': { '$lte': threshold_datetime },
+        'repeat_visible': True
+    })
+    
+    return render_template('profile.html', user=user, review_count=review_count)
 
 @app.route('/profile_edit', methods=['GET', 'POST'])
 @jwt_required()
@@ -278,7 +295,16 @@ def profile_edit():
 
     if request.method == 'GET':
         user = user_collection.find_one({'user_id': user_id}, {'_id': False})
-        return render_template('profile_edit.html', user=user)
+        
+        # 복습할 메모 개수 계산 (헤더 알림용)
+        threshold_datetime = datetime.now() - timedelta(minutes=1)
+        review_count = memo_collection.count_documents({
+            'user_id': user_id,
+            'created_at': { '$lte': threshold_datetime },
+            'repeat_visible': True
+        })
+        
+        return render_template('profile_edit.html', user=user, review_count=review_count)
 
     data = request.get_json()
     new_id = data.get('user_id')
