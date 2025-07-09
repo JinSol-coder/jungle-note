@@ -418,5 +418,43 @@ def unshare_memo():
     else:
         return jsonify({'msg': '해당 메모가 없거나 권한이 없습니다.'}), 400
 
+@app.route('/comments', methods=['POST'])
+@jwt_required()
+def post_comment():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    memo_id = data.get('memo_id')
+    content = data.get('content')
+    user = user_collection.find_one({'user_id': user_id})
+    if not memo_id or not content:
+        return jsonify({'success': False, 'msg': '필수 값 누락'}), 400
+    comment = {
+        'memo_id': ObjectId(memo_id),
+        'user_id': user_id,
+        'user_name': user.get('user_name', '익명'),
+        'content': content,
+        'created_at': datetime.now()
+    }
+    db.comments.insert_one(comment)
+    return jsonify({'success': True, 'msg': '댓글 등록 완료!'})
+# 댓글 조회
+@app.route('/comments/<memo_id>', methods=['GET'])
+@jwt_required()
+def get_comments(memo_id):
+    try:
+        object_id = ObjectId(memo_id)
+    except InvalidId:
+        return jsonify({'success': False, 'msg': '유효하지 않은 memo_id입니다.'}), 400
+    comments = list(db.comments.find({'memo_id': object_id}).sort('created_at', 1))
+    # ObjectId를 문자열로 변환하고 날짜 포맷팅
+    for comment in comments:
+        comment['_id'] = str(comment['_id'])
+        comment['memo_id'] = str(comment['memo_id'])
+        comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
+    return jsonify({
+        'success': True,
+        'comments': comments
+    })
+
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
