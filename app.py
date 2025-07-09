@@ -9,7 +9,8 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import os
-from bson.objectid import ObjectId
+from bson.objectid import ObjectId, InvalidId
+from bson.regex import Regex
 
 # 환경 변수 로딩
 load_dotenv()
@@ -109,7 +110,38 @@ def register_post():
 def main():
     user = get_jwt_identity()
     memos = list(memo_collection.find({'user_id': user}))
-    return render_template('main.html', memos=memos)
+    query = request.args.get('query', '').strip()
+    tag = request.args.get('tag', '').strip()
+    # 복습할 메모 개수 계산
+
+    # threshold_date = (datetime.now.date() - timedelta(days=7))
+    # threshold_datetime = datetime.combine(threshold_date, datetime.min.time()) 7일 후 !
+    threshold_datetime = datetime.now() - timedelta(minutes=1)
+
+    review_count = memo_collection.count_documents({
+        'user_id': user,
+        'created_at': { '$lte': threshold_datetime },
+        'repeat_visible': True
+    })
+
+    filter_query = { 'user_id': user }
+
+    if query.startswith('#'):
+        tag_keyword = query[1:].strip()
+        if tag_keyword:
+            filter_query['tags'] = tag_keyword
+    elif query:
+        regex = Regex(query, 'i')  # 대소문자 구분 없이
+        filter_query['$or'] = [
+            { 'title': regex },
+            { 'content': regex },
+            { 'tags': regex }  # 리스트에서도 검색 가능
+        ]
+    elif tag:
+        filter_query['tags'] = tag  # 정확히 일치하는 태그
+
+    memos = list(memo_collection.find(filter_query).sort('created_at', -1))
+    return render_template('main.html', memos=memos, review_count=review_count, selected_tag=tag, query=query)
 
 # 메모 추가
 @app.route('/memo_add', methods=["GET", "POST"])
@@ -123,11 +155,13 @@ def memo_add():
         title = data.get('title')
         content = data.get('content')
         user_id = get_jwt_identity()
+        tags = data.get('tags', [])
 
         memo_collection.insert_one({
             'user_id': user_id,
             'title': title,
             'content': content,
+            'tags': tags,
             'created_at': datetime.now(),
             'repeat_visible': True
         })
@@ -210,7 +244,7 @@ def hide_memo():
     )
 
     if result.modified_count == 1:
-        return jsonify({'msg': '숨김 처리 완료'}), 200
+        return jsonify({'msg': '!알림 삭제!'}), 200
     else:
         return jsonify({'msg': '해당 메모가 없거나 권한 없음'}), 400
 
