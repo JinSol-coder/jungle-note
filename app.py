@@ -157,6 +157,7 @@ def memo_add():
         content = data.get('content')
         user_id = get_jwt_identity()
         tags = data.get('tags', [])
+        share = data.get('share', False)  # 라운지 공유 여부
 
         memo_collection.insert_one({
             'user_id': user_id,
@@ -164,7 +165,8 @@ def memo_add():
             'content': content,
             'tags': tags,
             'created_at': datetime.now(),
-            'repeat_visible': True
+            'repeat_visible': True,
+            'share': share  # 라운지 공유 필드 추가
         })
         return jsonify({'success': True, 'msg': '저장 완료!'})
 
@@ -333,6 +335,88 @@ def profile_edit():
         return response
 
     return jsonify({'success': True, 'msg': '수정 완료!'})
+
+# 라운지 메인 페이지
+@app.route('/lounge')
+@jwt_required()
+def lounge():
+    user_id = get_jwt_identity()
+    
+    # 라운지에 공유된 메모들을 최신순으로 가져오기
+    shared_memos = list(memo_collection.find({'share': True}).sort('created_at', -1))
+    
+    # 각 메모에 작성자 정보 추가
+    for memo in shared_memos:
+        author = user_collection.find_one({'user_id': memo['user_id']})
+        memo['author_name'] = author['user_name'] if author else '알 수 없음'
+    
+    # 복습할 메모 개수 계산 (헤더 알림용)
+    threshold_datetime = datetime.now() - timedelta(minutes=1)
+    review_count = memo_collection.count_documents({
+        'user_id': user_id,
+        'created_at': { '$lte': threshold_datetime },
+        'repeat_visible': True
+    })
+    
+    return render_template('lounge.html', memos=shared_memos, review_count=review_count, current_user=user_id)
+
+# 메모 라운지 공유
+@app.route('/memo/share', methods=['POST'])
+@jwt_required()
+def share_memo():
+    user_id = get_jwt_identity()
+    
+    if not request.is_json:
+        return jsonify({'msg': 'JSON 형식이 아닙니다.'}), 400
+    
+    memo_id = request.json.get('memo_id')
+    
+    if not memo_id:
+        return jsonify({'msg': 'memo_id가 없습니다.'}), 400
+    
+    try:
+        object_id = ObjectId(memo_id)
+    except InvalidId:
+        return jsonify({'msg': '유효하지 않은 memo_id입니다.'}), 400
+    
+    result = memo_collection.update_one(
+        {'_id': object_id, 'user_id': user_id},
+        {'$set': {'share': True}}
+    )
+    
+    if result.modified_count == 1:
+        return jsonify({'msg': '메모가 라운지에 공유되었습니다!'}), 200
+    else:
+        return jsonify({'msg': '해당 메모가 없거나 권한이 없습니다.'}), 400
+
+# 메모 라운지 공유 해제
+@app.route('/memo/unshare', methods=['POST'])
+@jwt_required()
+def unshare_memo():
+    user_id = get_jwt_identity()
+    
+    if not request.is_json:
+        return jsonify({'msg': 'JSON 형식이 아닙니다.'}), 400
+    
+    memo_id = request.json.get('memo_id')
+    
+    if not memo_id:
+        return jsonify({'msg': 'memo_id가 없습니다.'}), 400
+    
+    try:
+        object_id = ObjectId(memo_id)
+    except InvalidId:
+        return jsonify({'msg': '유효하지 않은 memo_id입니다.'}), 400
+    
+    result = memo_collection.update_one(
+        {'_id': object_id, 'user_id': user_id},
+        {'$set': {'share': False}}
+    )
+    
+    if result.modified_count == 1:
+        return jsonify({'msg': '라운지에서 메모가 제거되었습니다!'}), 200
+    else:
+        return jsonify({'msg': '해당 메모가 없거나 권한이 없습니다.'}), 400
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

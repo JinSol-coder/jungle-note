@@ -47,8 +47,16 @@
 
                 <!-- 태그 입력 -->
                 <input type="text" id="tags" 
-                       class="w-full border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-8 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
+                       class="w-full border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-4 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
                        placeholder="태그 (쉼표로 구분)" />
+
+                <!-- 라운지 공유 체크박스 -->
+                <div class="flex items-center mb-8 ml-2">
+                    <input type="checkbox" id="shareToLounge" class="mr-2 w-4 h-4 text-purple-600 bg-yellow-100 border-purple-300 rounded focus:ring-purple-500">
+                    <label for="shareToLounge" class="text-sm text-gray-700 cursor-pointer">
+                        📢 라운지에 공유하기 (모든 회원이 볼 수 있습니다)
+                    </label>
+                </div>
 
                 <!-- 버튼 -->
                 <div class="flex justify-between items-center ml-2">
@@ -108,6 +116,7 @@
             const title = document.getElementById("title").value;
             const content = document.getElementById("editor").innerHTML;
             const tagsRaw = document.getElementById('tags').value.trim();
+            const shareToLounge = document.getElementById('shareToLounge').checked;
 
             if (!title.trim()) {
                 alert("제목을 입력해주세요!");
@@ -129,7 +138,7 @@
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": csrfToken
                     },
-                    body: JSON.stringify({ title, content, tags }),
+                    body: JSON.stringify({ title, content, tags, share: shareToLounge }),
                     credentials: "include"
                 });
 

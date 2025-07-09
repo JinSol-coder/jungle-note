@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>정글 노트 - 라운지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script>
+    // CSRF 토큰 쿠키에서 추출
+    function getCookie(name) {
+        const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+        return value ? decodeURIComponent(value.split('=')[1]) : null;
+    }
+    window.csrf_token = getCookie('csrf_access_token');
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!--헤더!-->
+    <header class="flex w-full items-center py-4 bg-white shadow-md">
+    <!-- 2.5단위: 정글 노트 -->
+        <div class="flex-[2.5] flex justify-center items-center">
+            <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
+        </div>
+
+        <!-- 1단위: 메모 -->
+        <div class="flex-1 flex justify-center items-center">
+            <a href="/main" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">메모</a>
+        </div>
+
+        <!-- 1단위: 복습 알림 -->
+        <div class="flex-1 flex justify-center items-center">
+            <a
+                href="/reminder"
+                class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500 relative">
+                복습 알림 {% if review_count > 0 %}
+                <span
+                    class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    {{ review_count }}
+                </span>
+                {% endif %}
+            </a>
+        </div>
+
+        <!-- 1단위: 라운지 -->
+        <div class="flex-1 flex justify-center items-center">
+            <a href="/lounge" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">라운지</a>
+        </div>
+
+        <!-- 0.5단위: 프로필 -->
+        <div class="flex-[0.5] flex justify-center items-center">
+            <a href="/profile">
+            <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
+            </a>
+        </div>
+    </header>
+
+    <!-- 라운지 메인 컨텐츠 -->
+    <main class="w-full px-5 pt-5 flex-1">
+        <div class="max-w-screen-xl mx-auto">
+            <!-- 라운지 헤더 -->
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">라운지</h2>
+                <p class="text-gray-600 mt-2">회원들이 공유한 메모들을 보라색 포스트잇으로 만나보세요! 📝</p>
+            </div>
+
+            <!-- 공유된 메모들 (포스트잇 스타일) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
+                {% if memos|length == 0 %}
+                    <div class="col-span-full text-center py-20">
+                        <p class="text-gray-500 text-lg">아직 공유된 메모가 없습니다.</p>
+                        <p class="text-gray-400 text-sm mt-2">메모 작성 시 '라운지에 공유하기'를 체크해보세요!</p>
+                    </div>
+                {% else %}
+                    {% for memo in memos %}
+                        <div class="relative">
+                            <!-- 보라색 포스트잇 스타일 메모 카드 -->
+                            <a href="/memo/{{ memo._id }}" 
+                               class="block w-full max-w-[250px] h-[320px] bg-purple-200 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
+                                
+                                <!-- 포스트잇 상단 테이프 효과 -->
+                                <div class="absolute -top-1 left-1/4 w-16 h-6 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
+                                <div class="absolute -top-1 left-1/4 w-16 h-6 bg-white opacity-50 rounded-b-md"></div>
+                                
+                                <!-- 메모 내용 -->
+                                <div class="p-4 pt-8 h-full flex flex-col">
+                                    <h2 class="text-sm font-bold text-gray-800 mb-3 line-clamp-2 break-words leading-tight ml-1">
+                                        {{ memo.title }}
+                                    </h2>
+                                    <div class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1 overflow-hidden" style="text-align: left !important;">
+                                        {{ memo.content | safe }}
+                                    </div>
+                                    
+                                    <!-- 작성자 정보 -->
+                                    <div class="flex items-center mt-3 ml-1">
+                                        <img src="/static/profile.png" alt="프로필" class="w-4 h-4 rounded-full mr-1">
+                                        <span class="text-xs text-gray-600">{{ memo.author_name }}</span>
+                                    </div>
+                                    
+                                    <!-- 태그 영역 -->
+                                    {% if memo.tags %}
+                                    <div class="flex flex-wrap gap-1 mt-2 ml-1">
+                                        {% for tag in memo.tags %}
+                                            <span class="text-xs text-gray-600 bg-purple-300 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                #{{ tag }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- 포스트잇 그림자 효과 -->
+                                <div class="absolute inset-0 bg-purple-400 opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+                            </a>
+
+                            <!-- 삭제 버튼 (본인 메모만) -->
+                            {% if memo.user_id == current_user %}
+                                <button onclick="unshareFromLounge('{{ memo._id }}')" 
+                                        class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors z-10"
+                                        title="라운지에서 제거">
+                                    ×
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function unshareFromLounge(memoId) {
+            if (!confirm("라운지에서 메모를 제거하시겠습니까?")) return;
+            
+            $.ajax({
+                url: '/memo/unshare',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': window.csrf_token,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({ memo_id: memoId }),
+                success: function(res) {
+                    alert(res.msg);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON?.msg || "오류 발생");
+                }
+            });
+        }
+
+        window.addEventListener("pageshow", function (event) {
+            if (
+                event.persisted ||
+                (window.performance && performance.navigation.type === 2)
+            ) {
+                // 뒤로가기 등으로 로드된 경우 새로고침
+                window.location.reload();
+            }
+        });
+    </script>
+
+</body>
+</html> 
