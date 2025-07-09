@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from flask_jwt_extended import (
@@ -57,6 +57,7 @@ def login():
 
     access_token = create_access_token(identity=username)
     refresh_token = create_refresh_token(identity=username)
+    csrf_token = get_csrf_token(access_token)
 
     response = jsonify({
         'success': True,
@@ -132,6 +133,22 @@ def memo_add():
         })
         return jsonify({'success': True, 'msg': '저장 완료!'})
 
+# 메모 삭제
+@app.route('/memo/<memo_id>', methods=["DELETE"])
+@jwt_required()
+def delete_memo(memo_id):
+    user_id = get_jwt_identity()
+
+    result = memo_collection.delete_one({
+        '_id': ObjectId(memo_id),
+        'user_id': user_id
+    })
+
+    if result.deleted_count == 1:
+        return jsonify({'success': True, 'msg': '삭제 완료!'})
+    else:
+        return jsonify({'success': False, 'msg': '삭제 실패!'}), 400
+
 
 # 리프레시 토큰 → 액세스 토큰 재발급
 @app.route('/refresh', methods=['POST'])
@@ -149,24 +166,68 @@ def refresh():
 def memo():
     return render_template('memo.html')
 
-# 리마인더 (추후 확장용)
-@app.route('/reminder')
-def repeat():
-    return 'This is repeat page!'
 
-@app.route('/memo/<memo_id>', methods=["DELETE"])
+# 리마인더
+@app.route('/reminder')
 @jwt_required()
-def delete_memo(memo_id):
+def reminder():
     user_id = get_jwt_identity()
-    result = memo_collection.delete_one({
+
+    threshold_date = (datetime.now().date() - timedelta(days=7))
+    threshold_datetime = datetime.combine(threshold_date, datetime.min.time())
+
+    repeat_memos = list(memo_collection.find({
+        'user_id': user_id,
+        'created_at': { '$lte': threshold_datetime },
+        'repeat_visible': True
+    }).sort('created_at', -1))  # -1: 내림차순
+
+    return render_template('reminder.html', memos=repeat_memos)
+
+# 완료된 할 일
+@app.route('/hide_memo', methods=['POST'])
+@jwt_required()
+def hide_memo():
+    user_id = get_jwt_identity()
+
+    if not request.is_json:
+        return jsonify({'msg': 'JSON 형식이 아닙니다.'}), 400
+
+    memo_id = request.json.get('memo_id')
+
+    if not memo_id:
+        return jsonify({'msg': 'memo_id가 없습니다.'}), 400
+
+    try:
+        object_id = ObjectId(memo_id)
+    except InvalidId:
+        return jsonify({'msg': '유효하지 않은 memo_id입니다.'}), 400
+
+    result = memo_collection.update_one(
+        {'_id': object_id, 'user_id': user_id},
+        {'$set': {'repeat_visible': False}}
+    )
+
+    if result.modified_count == 1:
+        return jsonify({'msg': '숨김 처리 완료'}), 200
+    else:
+        return jsonify({'msg': '해당 메모가 없거나 권한 없음'}), 400
+
+# 복습 내용 확인
+@app.route('/memo/<memo_id>')
+@jwt_required()
+def review(memo_id):
+    user_id = get_jwt_identity()
+
+    memo = memo_collection.find_one({
         '_id': ObjectId(memo_id),
         'user_id': user_id
     })
-    if result.deleted_count == 1:
-        return jsonify({'success': True, 'msg': '삭제 완료!'})
-    else:
-        return jsonify({'success': False, 'msg': '삭제 실패!'}), 400
 
+    if not memo:
+        return abort(404, description="해당 메모를 찾을 수 없습니다.")
+
+    return render_template('review.html', memo=memo)
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
