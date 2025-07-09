@@ -173,8 +173,9 @@ def memo():
 def reminder():
     user_id = get_jwt_identity()
 
-    threshold_date = (datetime.now().date() - timedelta(minutes=1)) #원래는 days=7
-    threshold_datetime = datetime.combine(threshold_date, datetime.min.time())
+    # threshold_date = (datetime.now.date() - timedelta(days=7))
+    # threshold_datetime = datetime.combine(threshold_date, datetime.min.time()) 7일 후 !
+    threshold_datetime = datetime.now() - timedelta(minutes=1)
 
     repeat_memos = list(memo_collection.find({
         'user_id': user_id,
