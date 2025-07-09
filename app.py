@@ -229,5 +229,13 @@ def review(memo_id):
 
     return render_template('review.html', memo=memo)
 
+@app.route('/profile')
+@jwt_required()
+def profile():
+    user_id = get_jwt_identity()
+    user = user_collection.find_one({'user_id': user_id}, {'_id': False})
+    return render_template('profile.html', user=user)
+
+
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
