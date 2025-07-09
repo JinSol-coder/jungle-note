@@ -1,0 +1,75 @@
+<!-- 📄 templates/profile_edit.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>프로필 편집</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+  <h1 class="text-3xl font-bold text-green-600 mb-8">프로필 편집</h1>
+
+  <form class="w-full max-w-md bg-white p-6 rounded shadow space-y-4" method="POST" onsubmit="submitEdit(event)">
+    <div>
+      <label class="block font-semibold mb-1">이름 (수정 불가)</label>
+      <input type="text" value="{{ user.user_name }}" disabled class="w-full border p-2 rounded bg-gray-100" />
+    </div>
+    <div>
+      <label class="block font-semibold mb-1">아이디</label>
+      <input type="text" id="user_id" value="{{ user.user_id }}" class="w-full border p-2 rounded" />
+    </div>
+    <div>
+      <label class="block font-semibold mb-1">이메일</label>
+      <input type="email" id="email" value="{{ user.user_email }}" class="w-full border p-2 rounded" />
+    </div>
+    <div>
+      <label class="block font-semibold mb-1">새 비밀번호</label>
+      <input type="password" id="password" class="w-full border p-2 rounded" />
+    </div>
+    <div>
+      <label class="block font-semibold mb-1">비밀번호 확인</label>
+      <input type="password" id="confirm" class="w-full border p-2 rounded" />
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <a href="/profile" class="text-sm text-gray-500 hover:underline">← 돌아가기</a>
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">수정 완료</button>
+    </div>
+  </form>
+
+  <script>
+    async function submitEdit(event) {
+      event.preventDefault();
+      const user_id = document.getElementById("user_id").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+
+      if (password && password !== confirm) {
+        return alert("비밀번호가 일치하지 않습니다.");
+      }
+
+      const res = await fetch("/profile_edit", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken
+        },
+        body: JSON.stringify({ user_id, email, password }),
+        credentials: "include"
+      });
+
+      const result = await res.json();
+      alert(result.msg);
+      if (result.success) window.location.href = "/profile";
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrfToken = getCookie("csrf_access_token");
+  </script>
+</body>
+</html>

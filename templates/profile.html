@@ -20,7 +20,7 @@
       <a href="/reminder" class="hover:text-blue-500 hover:border-blue-500">복습 알림</a>
     </div>
     <div class="flex-1 flex justify-center items-center">
-      <a href="/user">
+      <a href="/profile">
         <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
       </a>
     </div>
@@ -42,8 +42,34 @@
         <span class="font-semibold">이메일</span>
         <span>{{ user.user_email }}</span>
       </div>
-    <button class="bg-blue-500 text-white px-4 py-2 mt-10 rounded hover:bg-blue-600 mb-4">프로필 편집</button>
+    <div class="flex space-x-4 mt-4">
+      <button onclick="window.location.href='/profile_edit'"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        프로필 편집
+      </button>
+      <button onclick="logout()"
+              class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+        로그아웃
+      </button>
+    </div>
   </div>
+
+  <script>
+    async function logout() {
+      const res = await fetch("/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        alert("로그아웃 되었습니다!");
+        window.location.href = "/login";
+      } else {
+        alert("로그아웃 실패!");
+      }
+    }
+  </script>
+
 
 </main>
 

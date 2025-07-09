@@ -236,6 +236,42 @@ def profile():
     user = user_collection.find_one({'user_id': user_id}, {'_id': False})
     return render_template('profile.html', user=user)
 
+@app.route('/profile_edit', methods=['GET', 'POST'])
+@jwt_required()
+def profile_edit():
+    user_id = get_jwt_identity()
+
+    if request.method == 'GET':
+        user = user_collection.find_one({'user_id': user_id}, {'_id': False})
+        return render_template('profile_edit.html', user=user)
+
+    data = request.get_json()
+    new_id = data.get('user_id')
+    new_email = data.get('email')
+    new_password = data.get('password')
+
+    update_fields = {
+        'user_id': new_id,
+        'user_email': new_email
+    }
+    if new_password:
+        update_fields['user_pw'] = generate_password_hash(new_password)
+
+    result = user_collection.update_one(
+        {'user_id': user_id},
+        {'$set': update_fields}
+    )
+
+    # ID가 변경되었으면 JWT도 갱신
+    if new_id != user_id:
+        access_token = create_access_token(identity=new_id)
+        refresh_token = create_refresh_token(identity=new_id)
+        response = jsonify({'success': True, 'msg': '수정 완료! (ID 변경됨)'})
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response
+
+    return jsonify({'success': True, 'msg': '수정 완료!'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
