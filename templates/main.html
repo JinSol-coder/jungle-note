@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- 페이지 기본 설정 및 외부 스타일 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>정글 노트 - 메모</title>
@@ -54,6 +55,7 @@
         <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded">검색</button>
     </form>
 
+    <!-- 메모 카드 그리드 영역 -->
     <main class="w-full px-10 pt-10">
         <div
             class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
@@ -120,7 +122,7 @@
         </div>
     </main>
 
-    <!-- + 버튼 -->
+    <!-- 플로팅 메모 추가 버튼 -->
     <a href="/memo_add"
     class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white border shadow flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,6 +130,7 @@
         </svg>
     </a>
 
+    <!-- 페이지 기능 스크립트 -->
     <script>
         // CSRF 토큰 가져오기
         function getCookie(name) {

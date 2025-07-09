@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8">
     <title>복습 알림</title>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSRF 토큰 설정 -->
     <script>
         // CSRF 토큰 쿠키에서 추출
         function getCookie(name) {
@@ -16,7 +18,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center">
 
-    <!-- 헤더 -->
+    <!-- 페이지 헤더 -->
     <header class="flex w-full items-center py-4 bg-white shadow-md">
         <div class="flex-[2.5] flex justify-center items-center">
             <h1 class="text-2xl font-bold text-green-600">정글 노트</h1>
@@ -44,12 +46,14 @@
         </div>
     </header>
 
-    <!-- 메모 카드 -->
+    <!-- 복습 메모 목록 -->
     <div class="w-full max-w-8xl mt-10 px-4">
         {% if memos|length == 0 %}
+            <!-- 빈 상태 메시지 -->
             <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
         {% else %}
             {% for memo in memos %}
+            <!-- 개별 메모 카드 -->
             <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full min-h-[80px] cursor-pointer hover:bg-gray-50 transition-colors" onclick="navigateToReview('{{ memo._id }}')">
                 <div class="flex justify-between items-start h-full">
                     <!-- 메인 컨텐츠 영역 -->
@@ -81,7 +85,7 @@
         {% endif %}
     </div>
 
-    <!-- 숨김 처리 요청 -->
+    <!-- 복습 알림 기능 스크립트 -->
     <script>
         function navigateToReview(memoId) {
             location.href = '/memo/' + memoId;

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- 페이지 기본 설정 및 외부 스타일 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>정글 노트 - 라운지</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- CSRF 토큰 설정 -->
   <script>
     // CSRF 토큰 쿠키에서 추출
     function getCookie(name) {
@@ -60,13 +62,13 @@
         <div class="max-w-screen-xl mx-auto">
             <!-- 라운지 헤더 -->
             <div class="text-center mb-6">
-                <h2 class="text-3xl font-bold text-gray-800">라운지</h2>
-                <p class="text-gray-600 mt-2">회원들이 공유한 메모들을 보라색 포스트잇으로 만나보세요! 📝</p>
+                <p class="text-gray-600 mt-2">회원들이 공유한 메모들을 보고 댓글을 달아 보세요!</p>
             </div>
 
-            <!-- 공유된 메모들 (포스트잇 스타일) -->
+            <!-- 공유된 메모들 그리드 (포스트잇 스타일) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
                 {% if memos|length == 0 %}
+                    <!-- 빈 상태 메시지 -->
                     <div class="col-span-full text-center py-20">
                         <p class="text-gray-500 text-lg">아직 공유된 메모가 없습니다.</p>
                         <p class="text-gray-400 text-sm mt-2">메모 작성 시 '라운지에 공유하기'를 체크해보세요!</p>
@@ -119,6 +121,7 @@
         </div>
     </main>
 
+    <!-- 라운지 기능 스크립트 -->
     <script>
         async function unshareFromLounge(memoId) {
             if (!confirm("라운지에서 메모를 제거하시겠습니까?")) return;

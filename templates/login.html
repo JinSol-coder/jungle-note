@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>정글 되새김질 노트</title>
@@ -8,34 +9,41 @@
   </head>
   <body
     class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
+    <!-- 페이지 헤더 -->
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
     </header>
 
+    <!-- 로그인 폼 -->
     <div class="w-full max-w-sm p-6 bg-white rounded shadow">
       <h2 class="text-2xl font-bold mb-4 text-center">로그인</h2>
       <div>
+        <!-- 아이디 입력 -->
         <input
           type="text"
           id="username"
           placeholder="아이디"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 비밀번호 입력 -->
         <input
           type="password"
           id="password"
           placeholder="비밀번호"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 로그인 버튼 -->
         <button
           onclick="login()"
           class="w-full bg-blue-500 text-white p-2 rounded">
           로그인
         </button>
       </div>
+      <!-- 회원가입 링크 -->
       <p class="mt-4 text-center text-sm text-gray-500">
         계정이 없으신가요?
         <a href="/make" class="text-blue-500">회원가입</a>
       </p>
     </div>
+    <!-- 로그인 처리 스크립트 -->
     <script>
       async function login() {
         const username = document.getElementById("username").value;

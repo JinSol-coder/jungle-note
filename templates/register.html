@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
+    <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>회원가입 - 정글 되새김질 노트</title>
@@ -8,54 +9,64 @@
   </head>
   <body
     class="bg-gray-100 min-h-screen flex flex-col items-center justify-start pt-10">
+    <!-- 페이지 헤더 -->
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-green-600">정글 되새김질 노트</h1>
     </header>
 
+    <!-- 회원가입 폼 -->
     <div class="w-full max-w-sm p-6 bg-white rounded shadow">
       <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
       <form id="register-form" onsubmit="register(event)">
+        <!-- 이름 입력 -->
         <input
           type="text"
           name="name"
           id="name"
           placeholder="이름"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 아이디 입력 -->
         <input
           type="text"
           name="username"
           id="username"
           placeholder="아이디"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 이메일 입력 -->
         <input
           type="email"
           name="email"
           id="email"
           placeholder="이메일"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 비밀번호 입력 -->
         <input
           type="password"
           name="password"
           id="password"
           placeholder="비밀번호"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 비밀번호 확인 입력 -->
         <input
           type="password"
           name="confirm"
           id="confirm"
           placeholder="비밀번호 확인"
           class="w-full mb-3 p-2 border rounded" />
+        <!-- 회원가입 버튼 -->
         <button
           type="submit"
           class="w-full bg-green-500 text-white p-2 rounded">
           회원가입
         </button>
       </form>
+      <!-- 로그인 링크 -->
       <p class="mt-4 text-center text-sm text-gray-500">
         이미 계정이 있으신가요?
         <a href="/login" class="text-blue-500">로그인</a>
       </p>
     </div>
+    <!-- 회원가입 처리 스크립트 -->
     <script>
       async function register(event) {
         event.preventDefault();

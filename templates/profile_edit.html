@@ -2,14 +2,18 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- 페이지 기본 설정 및 외부 스타일 -->
   <meta charset="UTF-8" />
   <title>프로필 편집</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+  <!-- 페이지 타이틀 -->
   <h1 class="text-3xl font-bold text-green-600 mb-8">프로필 편집</h1>
 
+  <!-- 프로필 편집 폼 -->
   <form class="w-full max-w-md bg-white p-6 rounded shadow space-y-4" method="POST" onsubmit="submitEdit(event)">
+    <!-- 사용자 정보 입력 필드 -->
     <div>
       <label class="block font-semibold mb-1">이름 (수정 불가)</label>
       <input type="text" value="{{ user.user_name }}" disabled class="w-full border p-2 rounded bg-gray-100" />
@@ -31,12 +35,14 @@
       <input type="password" id="confirm" class="w-full border p-2 rounded" />
     </div>
 
+    <!-- 폼 액션 버튼 -->
     <div class="flex justify-between mt-6">
       <a href="/profile" class="text-sm text-gray-500 hover:underline">← 돌아가기</a>
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">수정 완료</button>
     </div>
   </form>
 
+  <!-- 프로필 편집 기능 스크립트 -->
   <script>
     async function submitEdit(event) {
       event.preventDefault();

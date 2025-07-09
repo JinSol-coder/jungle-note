@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메모 추가</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 커스텀 스타일 -->
     <style>
         .btn-active {
             background-color: rgb(251 191 36) !important; /* bg-yellow-400 */
@@ -24,6 +26,7 @@
             <!-- 제목 -->
             <h1 class="text-xl font-bold text-gray-800 mb-6 ml-2">새 메모 작성</h1>
 
+            <!-- 메모 작성 폼 -->
             <form id="memoForm" onsubmit="return false;">
                 <!-- 제목 입력 -->
                 <input type="text" id="title" name="title" 
@@ -78,7 +81,7 @@
         <div class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     </div>
 
-    <!-- 스크립트 -->
+    <!-- 메모 작성 기능 스크립트 -->
     <script>
         const editor = document.getElementById('editor');
         const placeholder = document.getElementById('placeholder');

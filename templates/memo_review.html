@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ memo.title }}</title>
@@ -8,6 +9,7 @@
 
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
+    <!-- 메모 상세보기 화면 -->
     <!-- 포스트잇 스타일 메모 카드 -->
     <div class="max-w-lg w-full {% if memo.share %}bg-purple-200{% else %}bg-yellow-200{% endif %} shadow-lg transform rotate-1 relative mx-auto mt-10">
         <!-- 포스트잇 상단 접착 테이프 효과 (더 뚜렷하게) -->
@@ -63,10 +65,10 @@
         
         <!-- 포스트잇 그림자 효과 -->
         <div class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
-      <!-- 댓글 영역 (라운지 공유 메모만) -->
+    <!-- 댓글 영역 (라운지 공유 메모만) -->
     {% if memo.share %}
     <div class="mt-12 space-y-8 max-w-lg mx-auto">
-        <!-- 댓글 작성 창 -->
+        <!-- 댓글 작성 폼 -->
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <h2 class="text-lg font-medium text-gray-800 mb-4">댓글 작성</h2>
             
@@ -89,13 +91,14 @@
             </div>
         </div>
         
-        <!-- 댓글 목록 -->
+        <!-- 댓글 목록 표시 영역 -->
         <div id="comment-list" class="space-y-4">
             <!-- 댓글들이 여기에 동적으로 추가됩니다 -->
         </div>
     </div>    
     {% endif %}
 
+    <!-- 메모 삭제 기능 스크립트 -->
     <script>
         function getCookie(name) {
             const value = `; ${document.cookie}`;
@@ -129,7 +132,7 @@
         }
     </script>
 
-    <!-- 댓글 기능 (라운지 공유 메모에서만) -->
+    <!-- 댓글 기능 스크립트 (라운지 공유 메모에서만) -->
     {% if memo.share %}
     <script>
         const memoId = "{{ memo._id }}";
