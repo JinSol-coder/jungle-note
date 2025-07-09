@@ -441,6 +441,7 @@ def post_comment():
 @app.route('/comments/<memo_id>', methods=['GET'])
 @jwt_required()
 def get_comments(memo_id):
+    user_id = get_jwt_identity()
     try:
         object_id = ObjectId(memo_id)
     except InvalidId:
@@ -451,10 +452,34 @@ def get_comments(memo_id):
         comment['_id'] = str(comment['_id'])
         comment['memo_id'] = str(comment['memo_id'])
         comment['created_at'] = comment['created_at'].strftime('%Y-%m-%d %H:%M')
+        comment['is_mine'] = comment['user_id'] == user_id  # 본인 댓글인지 확인
     return jsonify({
         'success': True,
-        'comments': comments
+        'comments': comments,
+        'current_user': user_id
     })
+
+# 댓글 삭제
+@app.route('/comments/<comment_id>', methods=['DELETE'])
+@jwt_required()
+def delete_comment(comment_id):
+    user_id = get_jwt_identity()
+    
+    try:
+        object_id = ObjectId(comment_id)
+    except InvalidId:
+        return jsonify({'success': False, 'msg': '유효하지 않은 댓글 ID입니다.'}), 400
+    
+    # 본인이 작성한 댓글만 삭제 가능
+    result = db.comments.delete_one({
+        '_id': object_id,
+        'user_id': user_id
+    })
+    
+    if result.deleted_count == 1:
+        return jsonify({'success': True, 'msg': '댓글이 삭제되었습니다.'})
+    else:
+        return jsonify({'success': False, 'msg': '댓글 삭제 실패 (권한 없음 또는 댓글 없음)'}), 400
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

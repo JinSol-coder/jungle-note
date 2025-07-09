@@ -5,60 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ memo.title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes bounceIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.3);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            70% {
-                transform: scale(0.9);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        .comment-item {
-            animation: slideInUp 0.4s ease-out;
-        }
-        
-        .comment-bounce {
-            animation: bounceIn 0.6s ease-out;
-        }
-        
-        .textarea-focus {
-            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
-        }
-        
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-    </style>
+
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <!-- 포스트잇 스타일 메모 카드 -->
@@ -120,38 +67,24 @@
     {% if memo.share %}
     <div class="mt-12 space-y-8 max-w-lg mx-auto">
         <!-- 댓글 작성 창 -->
-        <div class="relative bg-gradient-to-br from-purple-100 to-purple-200 p-6 shadow-lg rounded-xl border border-purple-200 transform hover:scale-[1.02] transition-all duration-200">
-            <!-- 작은 포스트잇 테이프 효과 -->
-            <div class="absolute -top-1 left-1/3 w-12 h-4 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
-            <div class="absolute -top-1 left-1/3 w-12 h-4 bg-white opacity-50 rounded-b-md"></div>
+        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">댓글 작성</h2>
             
-            <div class="flex items-center mb-4">
-                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-white text-sm">💬</span>
-                </div>
-                <h2 class="text-lg font-bold text-purple-800">댓글 작성</h2>
-            </div>
-            
-            <div class="relative">
+            <div>
                 <textarea
                     id="comment-input"
                     rows="3"
-                    placeholder="따뜻한 댓글을 남겨주세요 ✨"
-                    class="w-full bg-white/70 border-2 border-purple-200 rounded-lg p-4 resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-gray-700 placeholder-purple-400 backdrop-blur-sm transition-all duration-200"
-                    onfocus="this.classList.add('textarea-focus')"
-                    onblur="this.classList.remove('textarea-focus')"
+                    placeholder="댓글을 입력하세요"
+                    class="w-full border border-gray-300 rounded-lg p-3 resize-none focus:outline-none focus:border-purple-500"
                 ></textarea>
-                <div class="absolute bottom-3 right-3 text-xs text-purple-400">
-                    Enter로 작성
-                </div>
             </div>
             
-            <div class="flex justify-end mt-4">
+            <div class="flex justify-end mt-3">
                 <button
                     id="comment-submit"
-                    class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2.5 rounded-full hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
+                    class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition"
                 >
-                    <span class="mr-1">✨</span> 댓글 작성
+                    댓글 작성
                 </button>
             </div>
         </div>
@@ -204,21 +137,43 @@
         // 성공 메시지 표시 함수
         function showSuccessMessage() {
             const successDiv = document.createElement('div');
-            successDiv.className = 'comment-bounce fixed top-20 right-6 bg-gradient-to-r from-green-400 to-green-500 text-white px-6 py-3 rounded-full shadow-lg z-50 flex items-center space-x-2';
-            successDiv.innerHTML = `
-                <span class="text-lg">🎉</span>
-                <span class="font-medium">댓글이 작성되었어요!</span>
-            `;
+            successDiv.className = 'fixed top-20 right-6 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+            successDiv.innerHTML = '댓글이 작성되었습니다!';
             document.body.appendChild(successDiv);
             
-            // 3초 후 제거
+            // 2초 후 제거
             setTimeout(() => {
-                successDiv.style.opacity = '0';
-                successDiv.style.transform = 'translateX(100px)';
-                setTimeout(() => {
-                    document.body.removeChild(successDiv);
-                }, 300);
+                document.body.removeChild(successDiv);
             }, 2000);
+        }
+        
+        // 댓글 삭제 함수
+        async function deleteComment(commentId) {
+            if (!confirm("정말 이 댓글을 삭제할까요?")) return;
+            
+            const csrfToken = getCookie("csrf_access_token");
+            
+            try {
+                const response = await fetch(`/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert("댓글이 삭제되었습니다!");
+                    await loadComments(); // 댓글 목록 새로고침
+                } else {
+                    alert("댓글 삭제 실패: " + (data.msg || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                alert("오류 발생: 댓글 삭제 중 실패했습니다.");
+                console.error('댓글 삭제 에러:', error);
+            }
         }
         
         async function loadComments() {
@@ -239,15 +194,9 @@
                 }
                 if (!data.comments || data.comments.length === 0) {
                     commentList.innerHTML = `
-                        <div class="text-center py-12 comment-bounce">
-                            <div class="text-6xl mb-4 floating">💭</div>
-                            <p class="text-purple-400 text-lg font-medium">아직 댓글이 없어요</p>
-                            <p class="text-purple-300 text-sm mt-2">첫 번째 댓글을 남겨보세요!</p>
-                            <div class="mt-6 inline-flex space-x-1">
-                                <div class="w-2 h-2 bg-purple-300 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
-                                <div class="w-2 h-2 bg-purple-300 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
-                                <div class="w-2 h-2 bg-purple-300 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
-                            </div>
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">아직 댓글이 없습니다.</p>
+                            <p class="text-gray-400 text-sm mt-2">첫 번째 댓글을 남겨보세요!</p>
                         </div>
                     `;
                     return;
@@ -255,22 +204,26 @@
                 commentList.innerHTML = '';
                 data.comments.forEach((comment, index) => {
                     const commentElement = document.createElement('div');
-                    commentElement.className = 'comment-item relative bg-gradient-to-br from-white to-purple-50 p-5 rounded-xl shadow-md border border-purple-100 transform hover:scale-[1.01] transition-all duration-200 hover:shadow-lg';
+                    commentElement.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm';
                     commentElement.innerHTML = `
-                        <!-- 작은 테이프 효과 -->
-                        <div class="absolute -top-1 ${index % 2 === 0 ? 'left-1/4' : 'right-1/4'} w-8 h-3 bg-gray-200 opacity-60 rounded-b-sm"></div>
-                        <div class="absolute -top-1 ${index % 2 === 0 ? 'left-1/4' : 'right-1/4'} w-8 h-3 bg-white opacity-40 rounded-b-sm"></div>
-                        
                         <div class="flex items-start space-x-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1 floating">
+                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-white text-xs font-bold">${(comment.user_name || '익명').charAt(0).toUpperCase()}</span>
                             </div>
                             <div class="flex-grow">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="font-semibold text-purple-800 text-sm">${comment.user_name || '익명'}</span>
-                                    <span class="text-xs text-purple-400 bg-purple-100 px-2 py-1 rounded-full">${comment.created_at || '날짜 없음'}</span>
+                                    <span class="font-medium text-gray-800">${comment.user_name || '익명'}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">${comment.created_at || '날짜 없음'}</span>
+                                        ${comment.is_mine ? `
+                                            <button onclick="deleteComment('${comment._id}')" 
+                                                    class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">
+                                                삭제
+                                            </button>
+                                        ` : ''}
+                                    </div>
                                 </div>
-                                <p class="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed bg-white/50 p-3 rounded-lg border border-purple-100">${comment.content || '내용 없음'}</p>
+                                <p class="text-gray-700 text-sm">${comment.content || '내용 없음'}</p>
                             </div>
                         </div>
                     `;
@@ -280,10 +233,9 @@
                 console.error("댓글 불러오기 실패:", error);
                 const commentList = document.getElementById('comment-list');
                 commentList.innerHTML = `
-                    <div class="text-center py-12">
-                        <div class="text-6xl mb-4">😵</div>
-                        <p class="text-red-400 text-lg font-medium">댓글을 불러올 수 없어요</p>
-                        <p class="text-red-300 text-sm mt-2">잠시 후 다시 시도해주세요</p>
+                    <div class="text-center py-8">
+                        <p class="text-red-500">댓글을 불러올 수 없습니다.</p>
+                        <p class="text-gray-500 text-sm mt-2">잠시 후 다시 시도해주세요.</p>
                     </div>
                 `;
             }
