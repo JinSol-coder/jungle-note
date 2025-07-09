@@ -11,11 +11,11 @@ from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId, InvalidId
 from bson.regex import Regex
-
+from openai import OpenAI
 # 환경 변수 로딩
 load_dotenv()
 app = Flask(__name__)
-
+client2 = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # JWT 설정
 app.config['JWT_SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
@@ -25,7 +25,7 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 jwt = JWTManager(app)
 
 # MongoDB 연결
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://test:test@52.78.160.218:27017/')
 db = client['jungle_note']
 memo_collection = db['memos']
 user_collection = db['users']
@@ -480,6 +480,35 @@ def delete_comment(comment_id):
         return jsonify({'success': True, 'msg': '댓글이 삭제되었습니다.'})
     else:
         return jsonify({'success': False, 'msg': '댓글 삭제 실패 (권한 없음 또는 댓글 없음)'}), 400
+# 챗봇 기능
 
+@app.route('/chat', methods=['POST'])
+@jwt_required()
+def chat():
+    data = request.get_json()
+    message = data.get('message', '')
+
+    try:
+        # response = client2.chat.completions.create(
+        #     model="gpt-4o-mini",
+        #     response_format={ "type": "json_object" },
+        #     messages=[
+        #         {"role": "system", "content": "응답을 반드시 JSON 형식으로 주세요. JSON 모드 사용."},
+        #         {"role": "user", "content": message}
+        #     ]
+        # )
+        response = client2.chat.completions.create(
+            model="gpt-4o",
+            response_format={ "type": "json_object" },  # :흰색_확인_표시: 강제 JSON 응답
+            messages=[
+                {"role": "system", "content": "학습 내용을 요약하고, 태그를 달고, 복습 포인트와 행동 지침도 함께 알려줘. 다음 형식의 JSON으로만 응답하세요: {\"summary\": \"요약\", \"tags\": [\"태그1\", \"태그2\"],\"insight\": \"중요한 개념 정리\",\"action\": \"다음에 할 일 제안\",}"},
+                {"role": "user", "content": message}
+            ]
+        )
+        answer = response.choices[0].message.content
+        return jsonify({'reply': answer})
+    except Exception as e:
+        return jsonify({'reply': f"[에러 발생] {str(e)}"}), 500
+    
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

@@ -1,217 +1,378 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+  <head>
     <!-- 페이지 기본 설정 및 외부 스타일 -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>메모 추가</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 커스텀 스타일 -->
     <style>
-        .btn-active {
-            background-color: rgb(251 191 36) !important; /* bg-yellow-400 */
-        }
+      .btn-active {
+        background-color: rgb(251 191 36) !important; /* bg-yellow-400 */
+      }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen p-8">
-
+  </head>
+  <body class="bg-gray-100 min-h-screen p-8">
     <!-- 포스트잇 스타일 메모 추가 카드 -->
-    <div class="max-w-lg w-full bg-yellow-200 shadow-lg transform rotate-1 relative mx-auto mt-10">
-        <!-- 포스트잇 상단 접착 테이프 효과 -->
-        <div class="absolute -top-1 left-1/4 w-20 h-8 bg-gray-200 opacity-80 rounded-b-lg shadow-md border border-gray-300"></div>
-        <div class="absolute -top-1 left-1/4 w-20 h-8 bg-white opacity-60 rounded-b-lg"></div>
-        
-        <!-- 메모 작성 내용 -->
-        <div class="pt-10 pl-6 pr-8 pb-6">
-            <!-- 제목 -->
-            <h1 class="text-xl font-bold text-gray-800 mb-6 ml-2">새 메모 작성</h1>
+    <div
+      class="max-w-lg w-full bg-yellow-200 shadow-lg transform rotate-1 relative mx-auto mt-10">
+      <!-- 포스트잇 상단 접착 테이프 효과 -->
+      <div
+        class="absolute -top-1 left-1/4 w-20 h-8 bg-gray-200 opacity-80 rounded-b-lg shadow-md border border-gray-300"></div>
+      <div
+        class="absolute -top-1 left-1/4 w-20 h-8 bg-white opacity-60 rounded-b-lg"></div>
 
-            <!-- 메모 작성 폼 -->
-            <form id="memoForm" onsubmit="return false;">
-                <!-- 제목 입력 -->
-                <input type="text" id="title" name="title" 
-                       class="w-full bg-yellow-300 border-0 border-b-2 border-gray-400 bg-transparent px-2 py-2 mb-6 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2" 
-                       placeholder="제목을 입력하세요"/>
+      <!-- 메모 작성 내용 -->
+      <div class="pt-10 pl-6 pr-8 pb-6">
+        <!-- 제목 -->
+        <h1 class="text-xl font-bold text-gray-800 mb-6 ml-2">새 메모 작성</h1>
 
-                <!-- 간단한 툴바 -->
-                <div class="flex space-x-2 mb-4 ml-2">
-                    <button type="button" id="boldBtn" onclick="execCmd('bold')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold transition-colors">B</button>
-                    <button type="button" id="italicBtn" onclick="execCmd('italic')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic transition-colors">I</button>
-                    <button type="button" id="underlineBtn" onclick="execCmd('underline')" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline transition-colors">U</button>
-                    <button type="button" id="alignBtn" onclick="toggleTextAlign()" class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm transition-colors">중앙</button>
-                </div>
+        <!-- 메모 작성 폼 -->
+        <form id="memoForm" onsubmit="return false;">
+          <!-- 제목 입력 -->
+          <input
+            type="text"
+            id="title"
+            name="title"
+            class="w-full bg-yellow-300 border-0 border-b-2 border-gray-400 bg-transparent px-2 py-2 mb-6 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2"
+            placeholder="제목을 입력하세요" />
 
-                <!-- 내용 입력 영역 -->
-                <div class="relative mb-6 ml-2 bg-yellow-300">
-                    <div id="editor" contenteditable="true"
-                        class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto min-h-[192px] max-h-[192px]">
-                    </div>
-                    <div id="placeholder"
-                        class="absolute top-2 left-2 text-gray-500 pointer-events-none select-none">
-                        내용을 입력하세요...
-                    </div>
-                </div>
+          <!-- 간단한 툴바 -->
+          <div class="flex space-x-2 mb-4 ml-2">
+            <!-- Bold -->
+            <button
+              id="boldBtn"
+              type="button"
+              onclick="execCmd('bold')"
+              class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm font-bold">
+              B
+            </button>
 
-                <!-- 태그 입력 -->
-                <input type="text" id="tags" 
-                       class="w-full bg-yellow-300 border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-4 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm" 
-                       placeholder="태그 (쉼표로 구분)" />
+            <!-- Italic -->
+            <button
+              id="italicBtn"
+              type="button"
+              onclick="execCmd('italic')"
+              class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm italic">
+              I
+            </button>
 
-                <!-- 라운지 공유 체크박스 -->
-                <div class="flex items-center mb-8 ml-2">
-                    <input type="checkbox" id="shareToLounge" class="mr-2 w-4 h-4 text-purple-600 bg-yellow-100 border-purple-300 rounded focus:ring-purple-500">
-                    <label for="shareToLounge" class="text-sm text-gray-700 cursor-pointer">
-                        📢 라운지에 공유하기 (모든 회원이 볼 수 있습니다)
-                    </label>
-                </div>
+            <!-- Underline -->
+            <button
+              id="underlineBtn"
+              type="button"
+              onclick="execCmd('underline')"
+              class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm underline">
+              U
+            </button>
 
-                <!-- 버튼 -->
-                <div class="flex justify-between items-center ml-2">
-                    <a href="/main" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
-                        ← 뒤로가기
-                    </a>
-                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                        저장
-                    </button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- 포스트잇 그림자 효과 -->
-        <div class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+            <!-- Align -->
+            <button
+              id="alignBtn"
+              type="button"
+              onclick="toggleTextAlign()"
+              class="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 rounded text-sm">
+              중앙
+            </button>
+
+            <button
+              type="button"
+              onclick="toggleChat()"
+              class="px-2 py-1 bg-blue-300 hover:bg-blue-400 rounded text-sm">
+              🤖 AI 도움
+            </button>
+          </div>
+
+          <!-- 내용 입력 영역 -->
+          <div class="relative mb-6 ml-2 bg-yellow-300">
+            <div
+              id="editor"
+              contenteditable="true"
+              class="w-full h-48 bg-transparent border-0 px-2 py-2 focus:outline-none text-gray-700 leading-relaxed overflow-y-auto min-h-[192px] max-h-[192px]"></div>
+            <div
+              id="placeholder"
+              class="absolute top-2 left-2 text-gray-500 pointer-events-none select-none">
+              내용을 입력하세요...
+            </div>
+          </div>
+
+          <!-- 태그 입력 -->
+          <input
+            type="text"
+            id="tags"
+            class="w-full bg-yellow-300 border-0 border-b border-gray-400 bg-transparent px-2 py-2 mb-4 focus:outline-none focus:border-gray-600 placeholder-gray-500 ml-2 text-sm"
+            placeholder="태그 (쉼표로 구분)" />
+
+          <!-- 라운지 공유 체크박스 -->
+          <div class="flex items-center mb-8 ml-2">
+            <input
+              type="checkbox"
+              id="shareToLounge"
+              class="mr-2 w-4 h-4 text-purple-600 bg-yellow-100 border-purple-300 rounded focus:ring-purple-500" />
+            <label
+              for="shareToLounge"
+              class="text-sm text-gray-700 cursor-pointer">
+              📢 라운지에 공유하기 (모든 회원이 볼 수 있습니다)
+            </label>
+          </div>
+
+          <!-- 버튼 -->
+          <div class="flex justify-between items-center ml-2">
+            <a
+              href="/main"
+              class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+              ← 뒤로가기
+            </a>
+            <button
+              type="submit"
+              class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+              저장
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 포스트잇 그림자 효과 -->
+      <div
+        class="absolute inset-0 bg-yellow-400 opacity-20 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
     </div>
 
     <!-- 메모 작성 기능 스크립트 -->
     <script>
-        const editor = document.getElementById('editor');
-        const placeholder = document.getElementById('placeholder');
+      const editor = document.getElementById("editor");
+      const placeholder = document.getElementById("placeholder");
 
-        function togglePlaceholder() {
-            placeholder.style.display = editor.innerText.trim() === '' ? 'block' : 'none';
+      function togglePlaceholder() {
+        placeholder.style.display =
+          editor.innerText.trim() === "" ? "block" : "none";
+      }
+
+      function execCmd(command, value = null) {
+        editor.focus();
+        document.execCommand(command, false, value);
+        updateButtonStates(); // 명령 실행 후 버튼 상태 업데이트
+      }
+
+      // 안전한 텍스트 정렬 함수
+      let isTextCentered = false;
+      function toggleTextAlign() {
+        editor.focus();
+        if (isTextCentered) {
+          editor.style.textAlign = "left";
+          isTextCentered = false;
+        } else {
+          editor.style.textAlign = "center";
+          isTextCentered = true;
+        }
+        updateButtonStates(); // 정렬 변경 후 버튼 상태 업데이트
+      }
+
+      // 버튼 상태 업데이트 함수
+      function updateButtonStates() {
+        const boldBtn = document.getElementById("boldBtn");
+        const italicBtn = document.getElementById("italicBtn");
+        const underlineBtn = document.getElementById("underlineBtn");
+        const alignBtn = document.getElementById("alignBtn");
+
+        // execCommand 상태 확인
+        if (document.queryCommandState("bold")) {
+          boldBtn.classList.add("btn-active");
+        } else {
+          boldBtn.classList.remove("btn-active");
         }
 
-        function execCmd(command, value = null) {
-            editor.focus();
-            document.execCommand(command, false, value);
-            updateButtonStates(); // 명령 실행 후 버튼 상태 업데이트
+        if (document.queryCommandState("italic")) {
+          italicBtn.classList.add("btn-active");
+        } else {
+          italicBtn.classList.remove("btn-active");
         }
 
-        // 안전한 텍스트 정렬 함수
-        let isTextCentered = false;
-        function toggleTextAlign() {
-            editor.focus();
-            if (isTextCentered) {
-                editor.style.textAlign = 'left';
-                isTextCentered = false;
-            } else {
-                editor.style.textAlign = 'center';
-                isTextCentered = true;
-            }
-            updateButtonStates(); // 정렬 변경 후 버튼 상태 업데이트
+        if (document.queryCommandState("underline")) {
+          underlineBtn.classList.add("btn-active");
+        } else {
+          underlineBtn.classList.remove("btn-active");
         }
 
-        // 버튼 상태 업데이트 함수
-        function updateButtonStates() {
-            const boldBtn = document.getElementById('boldBtn');
-            const italicBtn = document.getElementById('italicBtn');
-            const underlineBtn = document.getElementById('underlineBtn');
-            const alignBtn = document.getElementById('alignBtn');
-
-            // execCommand 상태 확인
-            if (document.queryCommandState('bold')) {
-                boldBtn.classList.add('btn-active');
-            } else {
-                boldBtn.classList.remove('btn-active');
-            }
-
-            if (document.queryCommandState('italic')) {
-                italicBtn.classList.add('btn-active');
-            } else {
-                italicBtn.classList.remove('btn-active');
-            }
-
-            if (document.queryCommandState('underline')) {
-                underlineBtn.classList.add('btn-active');
-            } else {
-                underlineBtn.classList.remove('btn-active');
-            }
-
-            // 텍스트 정렬 상태 확인
-            if (isTextCentered) {
-                alignBtn.classList.add('btn-active');
-            } else {
-                alignBtn.classList.remove('btn-active');
-            }
+        // 텍스트 정렬 상태 확인
+        if (isTextCentered) {
+          alignBtn.classList.add("btn-active");
+        } else {
+          alignBtn.classList.remove("btn-active");
         }
+      }
 
-        editor.addEventListener('input', function() {
-            togglePlaceholder();
-            updateButtonStates();
-        });
-        editor.addEventListener('focus', function() {
-            togglePlaceholder();
-            updateButtonStates();
-        });
-        editor.addEventListener('blur', togglePlaceholder);
-        editor.addEventListener('keyup', updateButtonStates);
-        editor.addEventListener('mouseup', updateButtonStates);
-        
+      editor.addEventListener("input", function () {
         togglePlaceholder();
-        updateButtonStates(); // 초기 상태 설정
+        updateButtonStates();
+      });
+      editor.addEventListener("focus", function () {
+        togglePlaceholder();
+        updateButtonStates();
+      });
+      editor.addEventListener("blur", togglePlaceholder);
+      editor.addEventListener("keyup", updateButtonStates);
+      editor.addEventListener("mouseup", updateButtonStates);
 
-        // submit 전에 내용값 저장
-        async function saveMemo() {
-            const title = document.getElementById("title").value;
-            const content = document.getElementById("editor").innerHTML;
-            const tagsRaw = document.getElementById('tags').value.trim();
-            const shareToLounge = document.getElementById('shareToLounge').checked;
+      togglePlaceholder();
+      updateButtonStates(); // 초기 상태 설정
 
-            if (!title.trim()) {
-                alert("제목을 입력해주세요!");
-                return;
-            }
+      // submit 전에 내용값 저장
+      async function saveMemo() {
+        const title = document.getElementById("title").value;
+        const content = document.getElementById("editor").innerHTML;
+        const tagsRaw = document.getElementById("tags").value.trim();
+        const shareToLounge = document.getElementById("shareToLounge").checked;
 
-            if (!content.trim()) {
-                alert("내용을 입력해주세요!");
-                return;
-            }
-
-            const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
-
-            const csrfToken = getCookie("csrf_access_token");
-            try {
-                const res = await fetch("/memo_add", {
-                    method: "POST",
-                    headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken
-                    },
-                    body: JSON.stringify({ title, content, tags, share: shareToLounge }),
-                    credentials: "include"
-                });
-
-                if (!res.ok) {
-                    alert("메모 저장 실패!");
-                    return;
-                }
-                alert("저장 완료!");
-                window.location.href = "/main";
-            } catch (error) {
-                alert("오류가 발생했습니다.");
-            }
+        if (!title.trim()) {
+          alert("제목을 입력해주세요!");
+          return;
         }
 
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+        if (!content.trim()) {
+          alert("내용을 입력해주세요!");
+          return;
         }
 
-        document.getElementById('memoForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            saveMemo();
+        const tags = tagsRaw
+          ? tagsRaw
+              .split(",")
+              .map((t) => t.trim())
+              .filter((t) => t)
+          : [];
+
+        const csrfToken = getCookie("csrf_access_token");
+        try {
+          const res = await fetch("/memo_add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-TOKEN": csrfToken,
+            },
+            body: JSON.stringify({
+              title,
+              content,
+              tags,
+              share: shareToLounge,
+            }),
+            credentials: "include",
+          });
+
+          if (!res.ok) {
+            alert("메모 저장 실패!");
+            return;
+          }
+          alert("저장 완료!");
+          window.location.href = "/main";
+        } catch (error) {
+          alert("오류가 발생했습니다.");
+        }
+      }
+
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
+
+      document
+        .getElementById("memoForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          saveMemo();
         });
+      // AI 채팅 기능
+      function toggleChat() {
+        const panel = document.getElementById("aiPanel");
+        panel.classList.toggle("hidden");
+      }
+      async function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        const chatWindow = document.getElementById("chatWindow");
+        chatWindow.innerHTML += `<div class="mb-1"><strong>🙋‍♀️ : </strong> ${message}</div>`;
+        input.value = "";
+
+        // ✅ GPT 응답 대기 표시
+        const thinkingId = `thinking-${Date.now()}`;
+        chatWindow.innerHTML += `<div class="mb-1 text-gray-500" id="${thinkingId}">🤖 : ⏳ GPT가 생각 중입니다...</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        try {
+          const csrfToken = getCookie("csrf_access_token");
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-TOKEN": csrfToken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ message }),
+          });
+
+          const data = await res.json();
+          const raw = data.reply;
+
+          try {
+            const parsed = JSON.parse(raw);
+            const finalMsg = `<strong>🤖 : </strong> 💭${parsed.insight}<br>🚀${parsed.summary}<br>🛬${parsed.action}`;
+
+            // ✅ 대기 메시지를 실제 응답으로 교체
+            document.getElementById(thinkingId).innerHTML = finalMsg;
+          } catch (err) {
+            document.getElementById(
+              thinkingId
+            ).innerHTML = `<span class="text-red-500">:x: GPT 응답 파싱 실패</span>`;
+          }
+
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        } catch (err) {
+          document.getElementById(
+            thinkingId
+          ).innerHTML = `<span class="text-red-500">:x: GPT 응답 실패</span>`;
+        }
+      }
+
+      editor.addEventListener("paste", function (e) {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData(
+          "text/plain"
+        );
+        document.execCommand("insertText", false, text);
+      });
     </script>
 
-</body>
+    <!-- GPT 대화 패널 -->
+    <div
+      id="aiPanel"
+      class="hidden fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-lg z-50 p-4 border-l border-gray-300">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-bold text-gray-800">🤖 AI 도우미</h2>
+        <button
+          onclick="toggleChat()"
+          class="text-gray-500 hover:text-gray-700 text-sm">
+          닫기 ✖
+        </button>
+      </div>
+
+      <div
+        id="chatWindow"
+        class="h-[75%] overflow-y-auto bg-gray-50 border rounded p-2 mb-2 text-sm text-gray-800"></div>
+
+      <div class="flex">
+        <input
+          id="chatInput"
+          type="text"
+          placeholder="GPT에게 질문해보세요"
+          class="flex-grow border px-2 py-1 mr-2 text-sm rounded" />
+        <button
+          onclick="sendMessage()"
+          class="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+          전송
+        </button>
+      </div>
+    </div>
+  </body>
 </html>
