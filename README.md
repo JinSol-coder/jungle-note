@@ -12,4 +12,4 @@
      - 메인
      - 메모 추가
 
-<h1 style='color:red'>readme 페이지가 다르니 main이랑 병합 전에 확인하세요.</h1>
+<span style='color:red'>readme 페이지가 다르니 main이랑 병합 전에 확인하세요.</span>
