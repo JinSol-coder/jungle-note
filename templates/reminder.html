@@ -1,119 +1,85 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <!-- 페이지 기본 설정 및 외부 스타일 -->
-    <meta charset="UTF-8">
-    <title>복습 알림</title>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- CSRF 토큰 설정 -->
-    <script>
-        // CSRF 토큰 쿠키에서 추출
-        function getCookie(name) {
-            const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
-            return value ? decodeURIComponent(value.split('=')[1]) : null;
-        }
-        window.csrf_token = getCookie('csrf_access_token');
-    </script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+{% extends "header.html" %} {% block title %}복습 알림{% endblock %} {% block
+extra_head %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- CSRF 토큰 설정 -->
+<script>
+  // CSRF 토큰 쿠키에서 추출
+  function getCookie(name) {
+    const value = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(name + "="));
+    return value ? decodeURIComponent(value.split("=")[1]) : null;
+  }
+  window.csrf_token = getCookie("csrf_access_token");
+</script>
+{% endblock %} {% block content %}
+<!-- 복습 메모 목록 -->
+<div
+  class="w-full max-w-8xl mt-10 px-4 flex flex-col items-center min-h-screen">
+  {% if memos|length == 0 %}
+  <!-- 빈 상태 메시지 -->
+  <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
+  {% else %} {% for memo in memos %}
+  <!-- 개별 메모 카드 -->
+  <div
+    class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full min-h-[80px] cursor-pointer hover:bg-gray-50 transition-colors"
+    onclick="navigateToReview('{{ memo._id }}')">
+    <div class="flex justify-between items-start h-full">
+      <!-- 메인 컨텐츠 영역 -->
+      <div class="flex-1 pr-16 pb-6">
+        <h2
+          class="text-lg font-bold text-green-700 mb-2 overflow-hidden text-ellipsis whitespace-nowrap">
+          {{ memo.title }}
+        </h2>
+        <div
+          class="text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">
+          <span>학습한지 일주일이 지났습니다.</span>
+        </div>
+      </div>
 
-    <!-- 페이지 헤더 -->
-    <header class="flex w-full items-center py-4 bg-white shadow-md">
-        <div class="flex-[2.5] flex justify-center items-center">
-            <h1 class="text-2xl font-bold text-green-600">정글 메모</h1>
-        </div>
-        <div class="flex-1 flex justify-center items-center">
-            <a href="/main" class="hover:text-blue-500 hover:border-blue-500">메모 관리</a>
-        </div>
-        <div class="flex-1 flex justify-center items-center">
-            <a href="/reminder" class="border-b-2 text-black hover:border-b-2 border-black hover:border-blue-500 hover:text-blue-500 pb-1 relative">
-                복습 알림 {% if review_count > 0 %}
-                <span
-                    class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                    {{ review_count }}
-                </span>
-                {% endif %}
-            </a>
-        </div>
-        <div class="flex-1 flex justify-center items-center">
-            <a href="/lounge" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">라운지</a>
-        </div>
-        <div class="flex-[0.5] flex justify-center items-center">
-            <a href="/profile">
-                <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
-            </a>
-        </div>
-    </header>
+      <!-- 닫기 버튼 -->
+      <button
+        class="hide-btn text-red-500 font-bold text-xl absolute top-4 right-4"
+        data-id="{{ memo._id }}"
+        onclick="event.stopPropagation()">
+        ×
+      </button>
 
-    <!-- 복습 메모 목록 -->
-    <div class="w-full max-w-8xl mt-10 px-4">
-        {% if memos|length == 0 %}
-            <!-- 빈 상태 메시지 -->
-            <p class="text-center text-gray-500">오늘 복습할 메모가 없습니다.</p>
-        {% else %}
-            {% for memo in memos %}
-            <!-- 개별 메모 카드 -->
-            <div class="alert bg-white rounded-xl shadow p-4 mb-4 relative w-full min-h-[80px] cursor-pointer hover:bg-gray-50 transition-colors" onclick="navigateToReview('{{ memo._id }}')">
-                <div class="flex justify-between items-start h-full">
-                    <!-- 메인 컨텐츠 영역 -->
-                    <div class="flex-1 pr-16 pb-6" >
-                        <h2 class="text-lg font-bold text-green-700 mb-2 overflow-hidden text-ellipsis whitespace-nowrap">
-                            {{ memo.title }}
-                        </h2>
-                        <div class="text-sm text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap">
-                            <span>학습한지 일주일이 지났습니다.</span>
-                        </div>
-                    </div>
-                    
-                    <!-- 닫기 버튼 -->
-                    <button class="hide-btn text-red-500 font-bold text-xl absolute top-4 right-4" data-id="{{ memo._id }}" onclick="event.stopPropagation()">×</button>
-                    
-                    <!-- 작성일 (카드 오른쪽 아래) -->
-                    <div class="absolute bottom-4 right-4">
-                        <span class="text-xs text-gray-400">
-                            {% if memo.created_at.__class__.__name__ == 'datetime' %}
-                                {{ memo.created_at.strftime('%Y.%m.%d') }}
-                            {% else %}
-                                {{ memo.created_at[:10].replace('-', '.') }}
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% endif %}
+      <!-- 작성일 (카드 오른쪽 아래) -->
+      <span class="text-xs text-gray-400 absolute bottom-2 right-4">
+        {{ memo.created_at.strftime('%Y-%m-%d') }}
+      </span>
     </div>
+  </div>
+  {% endfor %} {% endif %}
+</div>
+{% endblock %} {% block extra_scripts %}
+<script>
+  // 메모 상세 페이지로 이동
+  function navigateToReview(memoId) {
+    window.location.href = `/memo/${memoId}`;
+  }
 
-    <!-- 복습 알림 기능 스크립트 -->
-    <script>
-        function navigateToReview(memoId) {
-            location.href = '/memo/' + memoId;
-        }
+  // 메모 숨기기 (알림에서 제거)
+  $(".hide-btn").on("click", function () {
+    const memoId = $(this).data("id");
 
-        $(document).ready(function () {
-            $('.hide-btn').click(function () {
-                const memoId = $(this).data('id');
-
-                $.ajax({
-                    url: '/hide_memo',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    headers: {
-                        'X-CSRF-TOKEN': window.csrf_token
-                    },
-                    data: JSON.stringify({ memo_id: memoId }),
-                    success: function (res) {
-                        alert(res.msg);
-                        location.reload();
-                    },
-                    error: function (xhr) {
-                        alert(xhr.responseJSON?.msg || "오류 발생");
-                    }
-                });
-            });
-        });
-    </script>
-
-</body>
-</html>
+    $.ajax({
+      url: "/hide_memo",
+      method: "POST",
+      headers: {
+        "X-CSRF-TOKEN": window.csrf_token,
+        "Content-Type": "application/json",
+      },
+      data: JSON.stringify({ memo_id: memoId }),
+      success: function (res) {
+        alert(res.msg);
+        location.reload();
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON?.msg || "오류 발생");
+      },
+    });
+  });
+</script>
+{% endblock %}

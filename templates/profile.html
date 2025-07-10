@@ -1,95 +1,59 @@
-<!-- 📄 jgnote/templates/user.html -->
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <!-- 페이지 기본 설정 및 외부 스타일 -->
-  <meta charset="UTF-8" />
-  <title>정글 메모 - 프로필</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-
-  <!-- 페이지 헤더 -->
-  <header class="flex w-full items-center py-4 bg-white shadow-md">
-    <div class="flex-[2.5] flex justify-center items-center">
-      <h1 class="text-2xl font-bold text-green-600">정글 메모</h1>
-    </div>
-    <div class="flex-1 flex justify-center items-center">
-      <a href="/main" class="hover:text-blue-500 hover:border-blue-500">메모 관리</a>
-    </div>
-    <div class="flex-1 flex justify-center items-center">
-      <a href="/reminder" class="hover:text-blue-500 hover:border-blue-500 relative">
-        복습 알림 {% if review_count > 0 %}
-        <span
-            class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-            {{ review_count }}
-        </span>
-        {% endif %}
-      </a>
-    </div>
-    <div class="flex-1 flex justify-center items-center">
-      <a href="/lounge" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">라운지</a>
-    </div>
-    <div class="flex-[0.5] flex justify-center items-center">
-      <a href="/profile">
-        <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
-      </a>
-    </div>
-  </header>
-
-  <!-- 프로필 본문 -->
+{% extends "header.html" %} {% block title %}정글 메모 - 프로필{% endblock %} {%
+block content %}
+<!-- 프로필 본문 -->
 <main class="flex flex-col items-center py-10 px-4">
-  <div class="bg-white shadow-md rounded-lg px-8 py-6 w-full max-w-sm text-gray-800 space-y-4 flex flex-col items-center">
+  <div
+    class="bg-white shadow-md rounded-lg px-8 py-6 w-full max-w-sm text-gray-800 space-y-4 flex flex-col items-center">
     <!-- 프로필 이미지 -->
-    <img src="/static/profile.png" alt="프로필 이미지" class="w-28 h-28 rounded-full shadow mb-4" />
-    
+    <img
+      src="/static/profile.png"
+      alt="프로필 이미지"
+      class="w-28 h-28 rounded-full shadow mb-4" />
+
     <!-- 사용자 정보 표시 -->
-      <div class="flex justify-between w-full">
-        <span class="font-semibold">이름</span>
-        <span>{{ user.user_name }}</span>
-      </div>
-      <div class="flex justify-between w-full">
-        <span class="font-semibold">ID</span>
-        <span>{{ user.user_id }}</span>
-      </div>
-      <div class="flex justify-between w-full">
-        <span class="font-semibold">이메일</span>
-        <span>{{ user.user_email }}</span>
-      </div>
-    
+    <div class="flex justify-between w-full">
+      <span class="font-semibold">이름</span>
+      <span>{{ user.user_name }}</span>
+    </div>
+    <div class="flex justify-between w-full">
+      <span class="font-semibold">ID</span>
+      <span>{{ user.user_id }}</span>
+    </div>
+    <div class="flex justify-between w-full">
+      <span class="font-semibold">이메일</span>
+      <span>{{ user.user_email }}</span>
+    </div>
+
     <!-- 프로필 관리 버튼 -->
     <div class="flex space-x-4 mt-4">
-      <button onclick="window.location.href='/profile_edit'"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      <button
+        onclick="window.location.href='/profile_edit'"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         프로필 편집
       </button>
-      <button onclick="logout()"
-              class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+      <button
+        onclick="logout()"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
         로그아웃
       </button>
     </div>
   </div>
-
-  <!-- 로그아웃 기능 스크립트 -->
-  <script>
-    async function logout() {
-      const res = await fetch("/logout", {
-        method: "POST",
-        credentials: "include"
-      });
-
-      if (res.ok) {
-        alert("로그아웃 되었습니다!");
-        window.location.href = "/login";
-      } else {
-        alert("로그아웃 실패!");
-      }
-    }
-  </script>
-
-
 </main>
+{% endblock %} {% block extra_scripts %}
+<!-- 로그아웃 기능 스크립트 -->
+<script>
+  async function logout() {
+    const res = await fetch("/logout", {
+      method: "POST",
+      credentials: "include",
+    });
 
-
-</body>
-</html>
+    if (res.ok) {
+      alert("로그아웃 되었습니다!");
+      window.location.href = "/login";
+    } else {
+      alert("로그아웃 실패!");
+    }
+  }
+</script>
+{% endblock %}

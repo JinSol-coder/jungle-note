@@ -1,189 +1,148 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <!-- 페이지 기본 설정 및 외부 스타일 -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>정글 메모 - 메모</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    <!--헤더!-->
-    <header class="flex w-full items-center py-4 bg-white shadow-md">
-    <!-- 2.5단위: 정글 메모 -->
-        <div class="flex-[2.5] flex justify-center items-center">
-            <h1 class="text-2xl font-bold text-green-600">정글 메모</h1>
-        </div>
+{% extends "header.html" %} {% block title %}정글 메모 - 메모{% endblock %} {%
+block content %}
+<!-- 검색 기능 -->
+<main class="w-full px-5 pt-5">
+  <form method="GET" action="/main" class="mb-4 flex gap-2 justify-center">
+    <input
+      type="text"
+      name="query"
+      placeholder="제목, 내용, 태그 등 검색"
+      class="border rounded px-3 py-1 w-60"
+      value="{{ request.args.get('query', '') }}" />
+    <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded">
+      검색
+    </button>
+  </form>
 
-        <!-- 1단위: 메모 -->
-        <div class="flex-1 flex justify-center items-center">
-            <a href="/main" class="text-black border-b-2 border-black hover:text-blue-500 hover:border-blue-500 pb-1">메모 관리</a>
-        </div>
+  <!-- 메모 카드 그리드 영역 -->
+  <main class="w-full px-10 pt-10">
+    <div
+      class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
+      {% for memo in memos %}
+      <div class="relative">
+        <!-- 포스트잇 스타일 메모 카드 -->
+        <div class="relative group">
+          <a
+            href="/memo/{{ memo._id }}"
+            class="block w-full max-w-[300px] h-[320px] {% if memo.share %}bg-purple-200{% else %}bg-yellow-200{% endif %} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
+            <!-- 포스트잇 상단 테이프 효과 -->
+            <div
+              class="absolute -top-1 left-1/4 w-16 h-6 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
+            <div
+              class="absolute -top-1 left-1/4 w-16 h-6 bg-white opacity-50 rounded-b-md"></div>
 
-        <!-- 1단위: 복습 알림 -->
-        <div class="flex-1 flex justify-center items-center">
-            <a
-                href="/reminder"
-                class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500 relative">
-                복습 알림 {% if review_count > 0 %}
+            <!-- 메모 내용 -->
+            <div class="p-4 pt-8 h-full flex flex-col">
+              <h2
+                class="text-sm font-bold text-gray-800 mb-3 line-clamp-2 break-words leading-tight ml-1">
+                {{ memo.title }}
+              </h2>
+              <div
+                class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1 overflow-hidden"
+                style="text-align: left !important">
+                {{ memo.content | safe }}
+              </div>
+
+              <!-- 태그 영역 -->
+              {% if memo.tags %}
+              <div class="flex flex-wrap gap-1 mt-3 ml-1">
+                {% for tag in memo.tags %}
                 <span
-                    class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                    {{ review_count }}
+                  class="text-xs text-gray-600 {% if memo.share %}bg-purple-300{% else %}bg-yellow-300{% endif %} px-2 py-0.5 rounded-full whitespace-nowrap">
+                  #{{ tag }}
                 </span>
-                {% endif %}
-            </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- 포스트잇 그림자 효과 -->
+            <div
+              class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
+          </a>
+
+          <!-- 라운지 공유 버튼 -->
+          <button
+            class="share-btn absolute bottom-2 right-2 w-8 h-8 rounded-full text-sm transition-all duration-200 z-10 opacity-0 group-hover:opacity-100 {% if memo.share %}bg-purple-500 text-white{% else %}bg-white text-gray-600 border border-gray-300{% endif %}"
+            data-memo-id="{{ memo._id }}"
+            data-shared="{% if memo.share %}true{% else %}false{% endif %}"
+            title="{% if memo.share %}라운지에서 제거{% else %}라운지에 공유{% endif %}">
+            {% if memo.share %} ⇆ {% else %} 📢 {% endif %}
+          </button>
+        </div>
       </div>
+      {% endfor %}
+    </div>
+  </main>
 
-        <!-- 1단위: 라운지 -->
-        <div class="flex-1 flex justify-center items-center">
-            <a href="/lounge" class="hover:border-b-2 hover:border-blue-500 hover:text-blue-500">라운지</a>
-        </div>
-
-        <!-- 0.5단위: 프로필 -->
-        <div class="flex-[0.5] flex justify-center items-center">
-            <a href="/profile">
-            <img src="/static/profile.png" alt="프로필" class="rounded-full w-8 h-8" />
-            </a>
-        </div>
-    </header>
-
-    <!-- 검색 기능 -->
-    <main class="w-full px-5 pt-5">
-    <form method="GET" action="/main" class="mb-4 flex gap-2 justify-center">
-        <input type="text" name="query" placeholder="제목, 내용, 태그 등 검색"
-            class="border rounded px-3 py-1 w-60" value="{{ request.args.get('query', '') }}">
-        <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded">검색</button>
-    </form>
-
-    <!-- 메모 카드 그리드 영역 -->
-    <main class="w-full px-10 pt-10">
-        <div
-            class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 justify-items-center">
-            
-            {% for memo in memos %}
-                <div class="relative">
-                    <!-- 포스트잇 스타일 메모 카드 -->
-                    <div class="relative group">
-                        <a href="/memo/{{ memo._id }}" 
-                           class="block w-full max-w-[300px] h-[320px] {% if memo.share %}bg-purple-200{% else %}bg-yellow-200{% endif %} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer relative transform {{ loop.cycle('rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0') }} hover:scale-105">
-                        
-                        <!-- 포스트잇 상단 테이프 효과 -->
-                        <div class="absolute -top-1 left-1/4 w-16 h-6 bg-gray-200 opacity-70 rounded-b-md shadow-sm"></div>
-                        <div class="absolute -top-1 left-1/4 w-16 h-6 bg-white opacity-50 rounded-b-md"></div>
-                        
-                        <!-- 메모 내용 -->
-                        <div class="p-4 pt-8 h-full flex flex-col">
-                            <h2 class="text-sm font-bold text-gray-800 mb-3 line-clamp-2 break-words leading-tight ml-1">
-                                {{ memo.title }}
-                            </h2>
-                            <div class="text-xs text-gray-700 line-clamp-6 break-words leading-relaxed flex-grow ml-1 overflow-hidden" style="text-align: left !important;">
-                                {{ memo.content | safe }}
-                            </div>
-                            
-                            <!-- 태그 영역 -->
-                            {% if memo.tags %}
-                            <div class="flex flex-wrap gap-1 mt-3 ml-1">
-                                {% for tag in memo.tags %}
-                                    <span class="text-xs text-gray-600 {% if memo.share %}bg-purple-300{% else %}bg-yellow-300{% endif %} px-2 py-0.5 rounded-full whitespace-nowrap">
-                                        #{{ tag }}
-                                    </span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                            <!-- 포스트잇 그림자 효과 -->
-                            <div class="absolute inset-0 {% if memo.share %}bg-purple-400{% else %}bg-yellow-400{% endif %} opacity-15 -z-10 transform translate-x-1 translate-y-1 rounded"></div>
-                        </a>
-
-                        <!-- 라운지 공유 버튼 -->
-                        <button class="share-btn absolute bottom-2 right-2 w-8 h-8 rounded-full text-sm transition-all duration-200 z-10 opacity-0 group-hover:opacity-100
-                                {% if memo.share %}bg-purple-500 text-white{% else %}bg-white text-gray-600 border border-gray-300{% endif %}"
-                                data-memo-id="{{ memo._id }}"
-                                data-shared="{% if memo.share %}true{% else %}false{% endif %}"
-                                title="{% if memo.share %}라운지에서 제거{% else %}라운지에 공유{% endif %}">
-                            {% if memo.share %}
-                                ⇆
-                            {% else %}
-                                📢
-                            {% endif %}
-                        </button>
-                    </div>
-                </div>
-            {% endfor %}
-            
-        </div>
-    </main>
-
-    <!-- 플로팅 메모 추가 버튼 -->
-    <a href="/memo_add"
+  <!-- 플로팅 메모 추가 버튼 -->
+  <a
+    href="/memo_add"
     class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white border shadow flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-    </a>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-6 h-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 4v16m8-8H4" />
+    </svg>
+  </a>
+  {% endblock %} {% block extra_scripts %}
+  <!-- 페이지 기능 스크립트 -->
+  <script>
+    // CSRF 토큰 가져오기
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+    const csrfToken = getCookie("csrf_access_token");
 
-    <!-- 페이지 기능 스크립트 -->
-    <script>
-        // CSRF 토큰 가져오기
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        }
-        const csrfToken = getCookie("csrf_access_token");
+    // 메모 공유 토글 함수
+    async function toggleMemoShare(memoId, isShared) {
+      const url = isShared ? "/memo/unshare" : "/memo/share";
+      const action = isShared ? "라운지에서 제거" : "라운지에 공유";
 
-        // 메모 공유 토글 함수
-        async function toggleMemoShare(memoId, isShared) {
-            const url = isShared ? '/memo/unshare' : '/memo/share';
-            const action = isShared ? '라운지에서 제거' : '라운지에 공유';
-            
-            if (!confirm(`정말 이 메모를 ${action}하시겠습니까?`)) return;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({ memo_id: memoId })
-                });
-                
-                const result = await response.json();
-                alert(result.msg);
-                if (response.ok) {
-                    location.reload();
-                }
-            } catch (error) {
-                alert('오류가 발생했습니다.');
-            }
-        }
+      if (!confirm(`정말 이 메모를 ${action}하시겠습니까?`)) return;
 
-        // 공유 버튼 이벤트 리스너 등록
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.share-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const memoId = this.dataset.memoId;
-                    const isShared = this.dataset.shared === 'true';
-                    toggleMemoShare(memoId, isShared);
-                });
-            });
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken,
+          },
+          credentials: "include",
+          body: JSON.stringify({ memo_id: memoId }),
         });
 
-        window.addEventListener("pageshow", function (event) {
-            if (
-            event.persisted ||
-            (window.performance && performance.navigation.type === 2)
-            ) {
-            // 뒤로가기 등으로 로드된 경우 새로고침
-            window.location.reload();
-            }
-        });
-    </script>
+        const result = await response.json();
+        alert(result.msg);
+        if (response.ok) {
+          location.reload();
+        }
+      } catch (error) {
+        alert("오류가 발생했습니다.");
+      }
+    }
 
-</body>
-</html>
+    // 공유 버튼 이벤트 리스너 등록
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".share-btn").forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const memoId = this.dataset.memoId;
+          const isShared = this.dataset.shared === "true";
+          toggleMemoShare(memoId, isShared);
+        });
+      });
+    });
+  </script>
+  {% endblock %}
+</main>

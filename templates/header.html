@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}정글 메모{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 공통 헤더 -->
+    <header class="flex w-full items-center py-4 bg-white shadow-md">
+      <!-- 2.5단위: 정글 메모 -->
+      <div class="flex-[2.5] flex justify-center items-center">
+        <h1 class="text-2xl font-bold text-green-600">정글 메모</h1>
+      </div>
+
+      <!-- 1단위: 메모 -->
+      <div class="flex-1 flex justify-center items-center">
+        <a
+          href="/main"
+          class="{% if active_page == 'main' %}text-black border-b-2 border-black{% else %}hover:border-b-2 hover:border-blue-500 hover:text-blue-500{% endif %} pb-1"
+          >메모 관리</a
+        >
+      </div>
+
+      <!-- 1단위: 복습 알림 -->
+      <div class="flex-1 flex justify-center items-center">
+        <a
+          href="/reminder"
+          class="{% if active_page == 'reminder' %}text-black border-b-2 border-black{% else %}hover:border-b-2 hover:border-blue-500 hover:text-blue-500{% endif %} relative pb-1">
+          복습 알림 {% if review_count > 0 %}
+          <span
+            class="absolute -top-2 -right-5 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            {{ review_count }}
+          </span>
+          {% endif %}
+        </a>
+      </div>
+
+      <!-- 1단위: 라운지 -->
+      <div class="flex-1 flex justify-center items-center">
+        <a
+          href="/lounge"
+          class="{% if active_page == 'lounge' %}text-black border-b-2 border-black{% else %}hover:border-b-2 hover:border-blue-500 hover:text-blue-500{% endif %} pb-1"
+          >라운지</a
+        >
+      </div>
+
+      <!-- 0.5단위: 프로필 -->
+      <div class="flex-[0.5] flex justify-center items-center">
+        <a href="/profile">
+          <img
+            src="/static/profile.png"
+            alt="프로필"
+            class="rounded-full w-8 h-8" />
+        </a>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 블록 -->
+    {% block content %}{% endblock %}
+
+    <!-- 공통 스크립트 -->
+    <script>
+      window.addEventListener("pageshow", function (event) {
+        if (
+          event.persisted ||
+          (window.performance && performance.navigation.type === 2)
+        ) {
+          // 뒤로가기 등으로 로드된 경우 새로고침
+          window.location.reload();
+        }
+      });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

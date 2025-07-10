@@ -5,11 +5,13 @@
 정글 부트캠프에서 배운 내용을 체계적으로 관리하고 복습할 수 있는 개인 메모 웹 애플리케이션입니다.
 
 ### 주요 기능
+
 - 📝 **메모 작성 & 관리**: 포스트잇 스타일로 학습 내용 정리
 - 🔍 **검색 & 태그**: 제목, 내용, 태그 기반 검색
 - 🔔 **복습 알림**: 일정 시간 후 복습 알림 제공
 - 👥 **라운지**: 다른 사용자와 메모 공유 및 댓글
 - 🔐 **사용자 인증**: JWT 기반 안전한 로그인
+- 🤖 **AI 챗봇**: OpenAI를 활용한 학습 내용 요약 및 분석
 
 ---
 
@@ -17,13 +19,14 @@
 
 **Backend**: Flask, MongoDB, JWT  
 **Frontend**: HTML/CSS/JS, Tailwind CSS  
-**기타**: Python, PyMongo, Werkzeug
+**기타**: Python, PyMongo, Werkzeug, OpenAI
 
 ---
 
 ## 🚀 설치 및 실행
 
 ### 1. 환경 설정
+
 ```bash
 git clone <repository-url>
 cd jgnote
@@ -33,21 +36,9 @@ pip install -r requirements.txt
 ```
 
 ### 2. MongoDB 설정
-- MongoDB 설치 및 실행 (localhost:27017)
 
-### 3. 환경 변수 설정
-`.env` 파일 생성:
-```
-SECRET_KEY=your-secret-key-here
-```
-
-### 4. 실행
-```bash
-python app.py
-```
-→ http://localhost:5000 접속
-
----
+- MongoDB 접속 (외부 서버 사용 중)
+- 또는 로컬 MongoDB 설치 후 app.py의 연결 문자열 수정
 
 ## 📱 사용법
 
@@ -66,7 +57,6 @@ jgnote/
 ├── app.py                    # Flask 메인 애플리케이션
 ├── README.md                 # 프로젝트 문서
 ├── .env                      # 환경 변수 (생성 필요)
-├── requirements.txt          # 의존성 패키지 목록 (생성 필요)
 ├── static/                   # 정적 파일 폴더
 │   └── profile.png          # 기본 프로필 이미지
 ├── templates/               # HTML 템플릿 폴더
@@ -74,11 +64,11 @@ jgnote/
 │   ├── register.html       # 회원가입 페이지
 │   ├── main.html           # 메인 메모 관리 페이지
 │   ├── memo_add.html       # 메모 작성 페이지
-│   ├── memo_edit.html      # 메모 수정 페이지
+│   ├── memo_review.html    # 메모 상세보기 페이지
 │   ├── profile.html        # 프로필 페이지
+│   ├── profile_edit.html   # 프로필 편집 페이지
 │   ├── reminder.html       # 복습 알림 페이지
-│   ├── lounge.html         # 라운지 페이지
-│   └── search.html         # 검색 결과 페이지
+│   └── lounge.html         # 라운지 페이지
 └── myenv/                   # Python 가상환경 폴더
     ├── bin/                 # 실행 파일들 (Linux/Mac)
     ├── lib/                 # 설치된 패키지들
@@ -88,35 +78,95 @@ jgnote/
 ### 파일별 주요 역할
 
 **🐍 Backend (app.py)**
+
 - Flask 애플리케이션 설정 및 라우팅
 - MongoDB 연결 및 데이터 처리
 - JWT 인증 및 세션 관리
 - RESTful API 엔드포인트 구현
+- OpenAI API 연동
 
 **🎨 Frontend (templates/)**
+
 - `login.html`, `register.html`: 사용자 인증
 - `main.html`: 메모 목록 및 관리 인터페이스
-- `memo_add.html`, `memo_edit.html`: 메모 CRUD 기능
+- `memo_add.html`, `memo_review.html`: 메모 작성 및 상세보기
+- `profile.html`, `profile_edit.html`: 사용자 프로필 관리
 - `reminder.html`: 복습 알림 시스템
 - `lounge.html`: 커뮤니티 기능
-- `profile.html`: 사용자 프로필 관리
 
-**📦 정적 리소스 (static/)**
-- 이미지, CSS, JavaScript 파일들
-- 프로필 이미지 및 기타 에셋
+---
+
+## 💾 데이터베이스 구조
+
+**MongoDB Collections:**
+
+### 📝 memos (메모)
+
+```javascript
+{
+  _id: ObjectId,
+  title: String,           // 메모 제목
+  content: String,         // 메모 내용
+  user_id: String,         // 작성자 ID
+  tags: [String],          // 태그 배열
+  share: Boolean,          // 라운지 공유 여부
+  repeat_visible: Boolean, // 복습 알림 표시 여부
+  created_at: Date         // 작성일시
+}
+```
+
+### 👤 users (사용자)
+
+```javascript
+{
+  _id: ObjectId,
+  user_id: String,         // 로그인 ID
+  user_name: String,       // 사용자 이름
+  user_email: String,      // 이메일
+  user_pw: String          // 암호화된 비밀번호
+}
+```
+
+### 💬 comments (댓글)
+
+```javascript
+{
+  _id: ObjectId,
+  memo_id: ObjectId,       // 메모 ID (참조)
+  user_id: String,         // 댓글 작성자 ID
+  user_name: String,       // 댓글 작성자 이름
+  content: String,         // 댓글 내용
+  created_at: Date         // 작성일시
+}
+```
 
 ---
 
 ## 📋 주요 API
 
-| 엔드포인트 | 메서드 | 설명 |
-|-----------|--------|------|
-| `/login` | GET/POST | 로그인 |
-| `/register` | POST | 회원가입 |
-| `/main` | GET | 메모 목록 |
-| `/memo_add` | GET/POST | 메모 작성 |
-| `/reminder` | GET | 복습 알림 |
-| `/lounge` | GET | 라운지 |
+| 엔드포인트               | 메서드   | 설명                         |
+| ------------------------ | -------- | ---------------------------- |
+| `/`                      | GET      | 루트 (로그인으로 리다이렉트) |
+| `/login`                 | GET/POST | 로그인                       |
+| `/logout`                | POST     | 로그아웃                     |
+| `/make`                  | GET      | 회원가입 페이지              |
+| `/register`              | POST     | 회원가입 처리                |
+| `/main`                  | GET      | 메모 목록                    |
+| `/memo_add`              | GET/POST | 메모 작성                    |
+| `/memo/<id>`             | GET      | 메모 상세보기                |
+| `/memo/<id>`             | DELETE   | 메모 삭제                    |
+| `/reminder`              | GET      | 복습 알림                    |
+| `/hide_memo`             | POST     | 복습 알림 숨기기             |
+| `/profile`               | GET      | 프로필 보기                  |
+| `/profile_edit`          | GET/POST | 프로필 편집                  |
+| `/lounge`                | GET      | 라운지                       |
+| `/memo/share`            | POST     | 메모 공유                    |
+| `/memo/unshare`          | POST     | 메모 공유 해제               |
+| `/comments`              | POST     | 댓글 작성                    |
+| `/comments/<memo_id>`    | GET      | 댓글 조회                    |
+| `/comments/<comment_id>` | DELETE   | 댓글 삭제                    |
+| `/chat`                  | POST     | AI 챗봇                      |
+| `/refresh`               | POST     | JWT 토큰 갱신                |
 
 ---
 
