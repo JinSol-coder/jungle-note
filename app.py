@@ -497,9 +497,9 @@ def chat():
         # )
         response = client2.chat.completions.create(
             model="gpt-4o",
-            response_format={ "type": "json_object" },  # :흰색_확인_표시: 강제 JSON 응답
+            response_format={ "type": "json_object" },  
             messages=[
-                {"role": "system", "content": "질문 내용을 잘 생각해서 자세히 대답해주고,내용을 요약하고, 태그를 달고, 복습 포인트와 추천사항도 함께 알려줘. 다음 형식의 JSON으로만 응답하세요: {\"summary\": \"요약\", \"tags\": [\"태그1\", \"태그2\"],\"insight\": \"중요한 개념 정리\",\"action\": \"다음에 할 일 제안\",}"},
+                {"role": "system", "content": "질문 내용을 잘 생각해서 자세히 대답해주고,내용을 요약하고, 태그를 달고, 복습 포인트와 추천사항도 함께 알려줘. 다음 형식의 JSON으로만 응답하세요: {\"summary\": \"요약\", \"tags\": [\"태그1\", \"태그2\"],\"insight\": \"중요한 개념 정리\",\"action\": \"다음에 할 일 제안 또는 추천 사항\",}"},
                 {"role": "user", "content": message}
             ]
         )
