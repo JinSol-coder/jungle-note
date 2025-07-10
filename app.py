@@ -42,7 +42,6 @@ def login():
         return render_template('login.html')
 
     data = request.get_json()
-    print("받은 로그인 데이터 : ", data)
     if data is None:
         return jsonify({'success': False, 'msg': '요청 데이터가 없습니다.'}), 400
 
@@ -63,7 +62,7 @@ def login():
     response = jsonify({
         'success': True,
         'msg': '로그인 성공!',
-        'csrf_token': get_csrf_token(access_token)
+        'csrf_token': csrf_token
     })
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
