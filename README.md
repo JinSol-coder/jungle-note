@@ -178,10 +178,6 @@ jgnote/
 
 ---
 
-## 🤝 기여하기
+## 🤝 회고록
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/기능명`)
-3. Commit your Changes (`git commit -m 'Add: 새 기능'`)
-4. Push to the Branch (`git push origin feature/기능명`)
-5. Open a Pull Request
+진솔 : https://velog.io/@imwe25/%ED%81%AC%EB%9E%98%ED%94%84%ED%86%A4-%EC%A0%95%EA%B8%80-10%EA%B8%B0-0%EC%A3%BC%EC%B0%A8-%ED%9A%8C%EA%B3%A0
