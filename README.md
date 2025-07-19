@@ -6,7 +6,7 @@
 
 ### 주요 기능
 
-- 📝 **메모 작성 & 관리**: 포스트잇 스타일로 학습 내용 정리
+- 📝 **메모 작성 & 관리**: 포스트잇 스타일로 학습 내용 정리, 개인적으로만 볼 수 있는 노란 메모와 모두에게 보여주고 싶은 보라색 메모로 전환할 수 있음
 - 🔍 **검색 & 태그**: 제목, 내용, 태그 기반 검색
 - 🔔 **복습 알림**: 일정 시간 후 복습 알림 제공
 - 👥 **라운지**: 다른 사용자와 메모 공유 및 댓글
@@ -167,6 +167,31 @@ jgnote/
 | `/comments/<comment_id>` | DELETE   | 댓글 삭제                    |
 | `/chat`                  | POST     | AI 챗봇                      |
 | `/refresh`               | POST     | JWT 토큰 갱신                |
+
+---
+## 구현 화면
+
+### 로그인 화면
+
+<img width="1907" height="1012" alt="image" src="https://github.com/user-attachments/assets/628df312-c435-4f8a-9323-a20dd3eb03ff" />
+
+### 메인 화면 (메모 관리 화면)
+
+<img width="1912" height="1013" alt="image" src="https://github.com/user-attachments/assets/0f62e9f2-5d56-4242-a1d0-f1367b7c87f7" />
+
+### 복습 알림 화면
+
+<img width="1913" height="922" alt="image" src="https://github.com/user-attachments/assets/5616415c-edc3-4c90-a7cd-48c2eed84e46" />
+
+### 라운지 화면
+
+<img width="1908" height="919" alt="image" src="https://github.com/user-attachments/assets/83020c21-933c-4bf6-8fc7-3523e1641c89" />
+
+### 사용자 정보
+
+<img width="1914" height="922" alt="image" src="https://github.com/user-attachments/assets/08d2b6d2-c45b-4409-a3f5-6162ae29409f" />
+
+<img width="1896" height="912" alt="image" src="https://github.com/user-attachments/assets/9339e2d3-a565-48b6-881d-57a10b72870f" />
 
 ---
 
